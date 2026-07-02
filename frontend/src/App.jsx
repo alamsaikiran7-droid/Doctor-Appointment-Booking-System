@@ -1,9 +1,9 @@
+import AppRoutes from "./routes/AppRoutes";
+
 function App() {
-  return (
-    <div>
-      <h1>Doctor Appointment Booking System</h1>
-    </div>
-  );
+
+    return <AppRoutes />;
+
 }
 
 export default App;
