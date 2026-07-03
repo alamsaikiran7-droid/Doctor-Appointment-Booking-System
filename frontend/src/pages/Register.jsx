@@ -10,7 +10,11 @@ function Register() {
     fullName: "",
     phone: "",
     email: "",
-    specialization: "",
+    speciality: "",
+    city: "",
+    experience_years: "",
+    consultation_fee: "",
+    bio: "",
     password: "",
     confirmPassword: "",
   });
@@ -33,6 +37,29 @@ function Register() {
       return;
     }
 
+    // Backend Payload (Later)
+    const registerData =
+      role === "doctor"
+        ? {
+            name: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            speciality: formData.speciality,
+            city: formData.city,
+            experience_years: Number(formData.experience_years),
+            consultation_fee: Number(formData.consultation_fee),
+            bio: formData.bio,
+            password: formData.password,
+          }
+        : {
+            name: formData.fullName,
+            email: formData.email,
+            phone: formData.phone,
+            password: formData.password,
+          };
+
+    console.log(registerData);
+
     alert(`${role} Registered Successfully`);
 
     navigate(`/login/${role}`);
@@ -44,17 +71,19 @@ function Register() {
 
         <div className="row justify-content-center">
 
-          <div className="col-md-6">
+          <div className="col-lg-7">
 
-            <div className="card shadow">
+            <div className="card shadow border-0 rounded-4">
 
-              <div className="card-body p-4">
+              <div className="card-body p-5">
 
                 <h2 className="text-center text-success mb-4">
                   {pageTitle}
                 </h2>
 
                 <form onSubmit={handleRegister}>
+
+                  {/* Full Name */}
 
                   <div className="mb-3">
                     <label className="form-label">
@@ -71,6 +100,8 @@ function Register() {
                     />
                   </div>
 
+                  {/* Phone */}
+
                   <div className="mb-3">
                     <label className="form-label">
                       Phone Number
@@ -86,6 +117,8 @@ function Register() {
                     />
                   </div>
 
+                  {/* Email */}
+
                   <div className="mb-3">
                     <label className="form-label">
                       Email
@@ -100,22 +133,115 @@ function Register() {
                     />
                   </div>
 
-                  {role === "doctor" && (
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Specialization
-                      </label>
+                  {/* Doctor Fields */}
 
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="specialization"
-                        value={formData.specialization}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
+                  {role === "doctor" && (
+                    <>
+
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Speciality
+                        </label>
+
+                        <input
+                          type="text"
+                          className="form-control"
+                          name="speciality"
+                          value={formData.speciality}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">
+                          City
+                        </label>
+
+                        <select
+                          className="form-select"
+                          name="city"
+                          value={formData.city}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">
+                            Select City
+                          </option>
+
+                          <option value="Hyderabad">
+                            Hyderabad
+                          </option>
+
+                          <option value="Chennai">
+                            Chennai
+                          </option>
+
+                          <option value="Bangalore">
+                            Bangalore
+                          </option>
+
+                          <option value="Mumbai">
+                            Mumbai
+                          </option>
+
+                          <option value="Delhi">
+                            Delhi
+                          </option>
+
+                        </select>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Experience (Years)
+                        </label>
+
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="experience_years"
+                          value={formData.experience_years}
+                          onChange={handleChange}
+                          min="0"
+                          required
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Consultation Fee (₹)
+                        </label>
+
+                        <input
+                          type="number"
+                          className="form-control"
+                          name="consultation_fee"
+                          value={formData.consultation_fee}
+                          onChange={handleChange}
+                          min="0"
+                          required
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Bio
+                        </label>
+
+                        <textarea
+                          className="form-control"
+                          rows="4"
+                          name="bio"
+                          value={formData.bio}
+                          onChange={handleChange}
+                        ></textarea>
+                      </div>
+
+                    </>
                   )}
+
+                  {/* Password */}
 
                   <div className="mb-3">
                     <label className="form-label">
@@ -131,6 +257,8 @@ function Register() {
                       required
                     />
                   </div>
+
+                  {/* Confirm Password */}
 
                   <div className="mb-4">
                     <label className="form-label">
@@ -148,6 +276,7 @@ function Register() {
                   </div>
 
                   <button
+                    type="submit"
                     className="btn btn-success w-100"
                   >
                     Register
