@@ -1,53 +1,106 @@
+import { Link } from "react-router-dom";
+
 function DoctorCard({
+  id,
   name,
-  specialization,
-  clinic,
+  email,
+  phone,
+  speciality,
   city,
-  fee,
-  experience,
-  rating,
+  consultation_fee,
+  experience_years,
+  bio,
   image,
+  rating,
 }) {
   return (
-    <div className="card shadow h-100">
+    <div className="card shadow-sm h-100 border-0 rounded-4">
+
+      {/* Doctor Image */}
 
       <img
         src={image}
         className="card-img-top"
         alt={name}
+        style={{
+          height: "250px",
+          objectFit: "cover",
+        }}
       />
 
       <div className="card-body">
 
-        <h5 className="card-title">{name}</h5>
+        {/* Doctor Name */}
 
-        <p>
-          <strong>Specialization:</strong> {specialization}
+        <h5 className="card-title fw-bold text-primary">
+          {name}
+        </h5>
+
+        {/* Speciality */}
+
+        <p className="mb-2">
+          <strong>Speciality:</strong> {speciality}
         </p>
 
-        <p>
-          <strong>Clinic:</strong> {clinic}
-        </p>
+        {/* City */}
 
-        <p>
+        <p className="mb-2">
           <strong>City:</strong> {city}
         </p>
 
-        <p>
-          <strong>Experience:</strong> {experience} Years
+        {/* Experience */}
+
+        <p className="mb-2">
+          <strong>Experience:</strong> {experience_years} Years
         </p>
 
-        <p>
-          <strong>Consultation Fee:</strong> ₹{fee}
+        {/* Consultation Fee */}
+
+        <p className="mb-2">
+          <strong>Consultation Fee:</strong> ₹{consultation_fee}
         </p>
 
-        <p>
+        {/* Phone */}
+
+        <p className="mb-2">
+          <strong>Phone:</strong> {phone}
+        </p>
+
+        {/* Email */}
+
+        <p className="mb-2">
+          <strong>Email:</strong> {email}
+        </p>
+
+        {/* Rating */}
+
+        <p className="mb-3">
           <strong>Rating:</strong> ⭐ {rating}
         </p>
 
-        <button className="btn btn-primary w-100">
+        {/* Bio */}
+
+        {bio && (
+          <p
+            className="text-muted"
+            style={{
+              fontSize: "14px",
+            }}
+          >
+            {bio}
+          </p>
+        )}
+
+      </div>
+
+      <div className="card-footer bg-white border-0">
+
+        <Link
+          to={`/doctor-profile/${id}`}
+          className="btn btn-primary w-100"
+        >
           View Profile
-        </button>
+        </Link>
 
       </div>
 

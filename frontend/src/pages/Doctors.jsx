@@ -4,38 +4,44 @@ import DoctorCard from "../components/DoctorCard";
 import doctors from "../data/doctors";
 
 function Doctors() {
+
   // ==========================
   // State Variables
   // ==========================
+
   const [searchTerm, setSearchTerm] = useState("");
-  const [specialization, setSpecialization] = useState("");
+  const [speciality, setSpeciality] = useState("");
   const [city, setCity] = useState("");
   const [sortOrder, setSortOrder] = useState("");
 
   // ==========================
   // Copy Doctor Array
   // ==========================
+
   let filteredDoctors = [...doctors];
 
   // ==========================
   // Search by Doctor Name
   // ==========================
+
   filteredDoctors = filteredDoctors.filter((doctor) =>
     doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // ==========================
-  // Filter by Specialization
+  // Filter by Speciality
   // ==========================
-  if (specialization !== "") {
+
+  if (speciality !== "") {
     filteredDoctors = filteredDoctors.filter(
-      (doctor) => doctor.specialization === specialization
+      (doctor) => doctor.speciality === speciality
     );
   }
 
   // ==========================
   // Filter by City
   // ==========================
+
   if (city !== "") {
     filteredDoctors = filteredDoctors.filter(
       (doctor) => doctor.city === city
@@ -45,23 +51,33 @@ function Doctors() {
   // ==========================
   // Sort by Consultation Fee
   // ==========================
+
   if (sortOrder === "low") {
-    filteredDoctors.sort((a, b) => a.fee - b.fee);
+    filteredDoctors.sort(
+      (a, b) => a.consultation_fee - b.consultation_fee
+    );
   }
 
   if (sortOrder === "high") {
-    filteredDoctors.sort((a, b) => b.fee - a.fee);
+    filteredDoctors.sort(
+      (a, b) => b.consultation_fee - a.consultation_fee
+    );
   }
+
+  // ==========================
+  // Clear Filters
+  // ==========================
+
   const clearFilters = () => {
     setSearchTerm("");
-    setSpecialization("");
+    setSpeciality("");
     setCity("");
     setSortOrder("");
   };
 
-
   return (
     <MainLayout>
+
       <div className="container mt-4">
 
         <h2 className="text-center mb-4">
@@ -69,7 +85,7 @@ function Doctors() {
         </h2>
 
         {/* ==========================
-            Filters Section
+            Filters
         ========================== */}
 
         <div className="row mb-4">
@@ -85,32 +101,42 @@ function Doctors() {
             <input
               type="text"
               className="form-control"
-              placeholder="Search doctor..."
+              placeholder="Search Doctor..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) =>
+                setSearchTerm(e.target.value)
+              }
             />
 
           </div>
 
-          {/* Specialization */}
+          {/* Speciality */}
 
           <div className="col-md-3">
 
             <label className="form-label">
-              Specialization
+              Speciality
             </label>
 
             <select
               className="form-select"
-              value={specialization}
-              onChange={(e) => setSpecialization(e.target.value)}
+              value={speciality}
+              onChange={(e) =>
+                setSpeciality(e.target.value)
+              }
             >
 
-              <option value="">All</option>
+              <option value="">
+                All
+              </option>
 
-              <option value="Dentist">Dentist</option>
+              <option value="Dentist">
+                Dentist
+              </option>
 
-              <option value="Cardiologist">Cardiologist</option>
+              <option value="Cardiologist">
+                Cardiologist
+              </option>
 
               <option value="General Physician">
                 General Physician
@@ -155,16 +181,26 @@ function Doctors() {
             <select
               className="form-select"
               value={city}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) =>
+                setCity(e.target.value)
+              }
             >
 
-              <option value="">All Cities</option>
+              <option value="">
+                All Cities
+              </option>
 
-              <option value="Hyderabad">Hyderabad</option>
+              <option value="Hyderabad">
+                Hyderabad
+              </option>
 
-              <option value="Chennai">Chennai</option>
+              <option value="Chennai">
+                Chennai
+              </option>
 
-              <option value="Bangalore">Bangalore</option>
+              <option value="Bangalore">
+                Bangalore
+              </option>
 
             </select>
 
@@ -181,10 +217,14 @@ function Doctors() {
             <select
               className="form-select"
               value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
+              onChange={(e) =>
+                setSortOrder(e.target.value)
+              }
             >
 
-              <option value="">Default</option>
+              <option value="">
+                Default
+              </option>
 
               <option value="low">
                 Fee: Low to High
@@ -199,24 +239,27 @@ function Doctors() {
           </div>
 
         </div>
+
         {/* Clear Filters */}
 
-         <div className="col-md-3 d-flex align-items-end">
+        <div className="row mb-4">
 
-          <button
-            className="btn btn-danger w-100"
-            onClick={clearFilters}
-          >
-            Clear Filters
-          </button>
+          <div className="col-md-3">
+
+            <button
+              className="btn btn-danger w-100"
+              onClick={clearFilters}
+            >
+              Clear Filters
+            </button>
+
+          </div>
 
         </div>
 
         {/* ==========================
             Doctor Cards
         ========================== */}
-
-        
 
         <div className="row">
 
@@ -225,20 +268,23 @@ function Doctors() {
             filteredDoctors.map((doctor) => (
 
               <div
-               className="col-lg-4 col-md-6 mb-4"
-               key={doctor.id}
+                className="col-lg-4 col-md-6 mb-4"
+                key={doctor.id}
               >
 
-               <DoctorCard
-                 name={doctor.name}
-                 specialization={doctor.specialization}
-                 clinic={doctor.clinic}
-                 city={doctor.city}
-                 fee={doctor.fee}
-                 experience={doctor.experience}
-                 rating={doctor.rating}
-                 image={doctor.image}
-               />
+                <DoctorCard
+                  id={doctor.id}
+                  name={doctor.name}
+                  email={doctor.email}
+                  phone={doctor.phone}
+                  speciality={doctor.speciality}
+                  city={doctor.city}
+                  consultation_fee={doctor.consultation_fee}
+                  experience_years={doctor.experience_years}
+                  bio={doctor.bio}
+                  rating={doctor.rating}
+                  image={doctor.image}
+                />
 
               </div>
 
@@ -261,6 +307,7 @@ function Doctors() {
         </div>
 
       </div>
+
     </MainLayout>
   );
 }

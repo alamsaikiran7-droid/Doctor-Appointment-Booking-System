@@ -1,53 +1,27 @@
 import MainLayout from "../layouts/MainLayout";
-import Hero from "../components/Hero";
-import DoctorCard from "../components/DoctorCard";
-import Features from "../components/Features";
-import doctors from "../data/doctors";
-import { Link } from "react-router-dom";
+import HeroSection from "../components/HeroSection";
 
 function Home() {
   return (
     <MainLayout>
+
       {/* Hero Section */}
-      <Hero />
+      <HeroSection />
 
-      {/* Featured Doctors */}
-      <h2 className="mt-5 mb-4 text-center">
-        Featured Doctors
-      </h2>
+      {/* Upcoming Sections */}
 
-      <div className="row">
-        {doctors.slice(0, 3).map((doctor) => (
-          <div
-            className="col-md-4 mb-4"
-            key={doctor.id}
-          >
-            <DoctorCard
-              name={doctor.name}
-              specialization={doctor.specialization}
-              clinic={doctor.clinic}
-              city={doctor.city}
-              fee={doctor.fee}
-              experience={doctor.experience}
-              rating={doctor.rating}
-              image={doctor.image}
-            />
-          </div>
-        ))}
-      </div>
+      {/* Statistics */}
 
-      {/* View All Doctors Button */}
-      <div className="text-center mb-5">
-        <Link
-          to="/doctors"
-          className="btn btn-primary btn-lg"
-        >
-          View All Doctors
-        </Link>
-      </div>
+      {/* Our Services */}
 
-      {/* Features Section */}
-      <Features />
+      {/* Why Choose Us */}
+
+      {/* Facilities */}
+
+      {/* Patient Journey */}
+
+      {/* Emergency Banner */}
+
     </MainLayout>
   );
 }
