@@ -15,6 +15,7 @@ class DoctorCreate(BaseModel):
 
 class DoctorUpdate(BaseModel):
     name: Optional[str] = None
+    email:Optional[EmailStr] = None
     phone: Optional[str] = None
     speciality: Optional[str] = None
     city: Optional[str] = None
