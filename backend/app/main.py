@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from app.routers import doctors
+app = FastAPI()
+app.include_router(doctors.router)
 
 from app.database import Base, engine
 from app.models import doctor
