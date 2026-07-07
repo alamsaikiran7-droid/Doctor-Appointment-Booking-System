@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Text
+from sqlalchemy import Column, Integer, String, Float, Text, Boolean
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -15,7 +15,7 @@ class Doctor(Base):
 
     phone = Column(String(15), unique=True, nullable=False)
 
-    specialty = Column(String(100), nullable=False, index=True)
+    speciality = Column(String(100), nullable=False, index=True)
 
     city = Column(String(100), nullable=False, index=True)
 
@@ -24,6 +24,8 @@ class Doctor(Base):
     consultation_fee = Column(Float, nullable=False)
 
     bio = Column(Text, nullable=True)
+
+    is_active = Column(Boolean, default=True, nullable=False)
 
     slots = relationship(
         "Slot",
