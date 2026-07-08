@@ -35,7 +35,7 @@ def decode_access_token(token: str) -> dict:
         payload = jwt.decode(
             token,
             settings.SECRET_KEY,
-            algorithms = [settings.ALGORITHms]
+            algorithms=[settings.ALGORITHM]
         )
 
         return payload
