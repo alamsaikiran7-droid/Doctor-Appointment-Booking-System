@@ -22,25 +22,22 @@ def get_current_user(
 
     try:
         payload = decode_access_token(token)
-        user_id = payload.get("sub")
+        user_identifier = payload.get("sub")
 
-        if user_id is None:
+        if user_identifier is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication token",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        try:
-            user_id = int(user_id)
-        except (TypeError, ValueError) as exc:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication token",
-                headers={"WWW-Authenticate": "Bearer"},
-            ) from exc
+        user = None
 
-        user = db.query(User).filter(User.id == user_id).first()
+        try:
+            user_id = int(user_identifier)
+            user = db.query(User).filter(User.id == user_id).first()
+        except (TypeError, ValueError):
+            user = db.query(User).filter(User.email == user_identifier).first()
 
         if user is None:
             raise HTTPException(
@@ -65,3 +62,17 @@ def get_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         ) from exc
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)):
+    """
+    Validate that the current user is an admin.
+    """
+
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized as admin",
+        )
+
+    return current_user
