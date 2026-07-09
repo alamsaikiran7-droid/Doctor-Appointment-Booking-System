@@ -3,6 +3,8 @@ from fastapi import FastAPI
 from app.config import settings
 from app.database import Base, engine
 from app.models import appointment, doctor, slot, user
+from app.routers import appointments, doctors, slots
+
 from app.routers import (
     appointments,
     doctors,
@@ -15,6 +17,7 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION
 )
+application = app
 
 # ==========================================
 # Include Routers
@@ -27,11 +30,9 @@ app.include_router(doctors.router)
 app.include_router(slots.router)
 app.include_router(appointments.router)
 
-# ==========================================
-# Create Database Tables
-# ==========================================
-
 Base.metadata.create_all(bind=engine)
+
+
 
 
 # ==========================================
@@ -44,5 +45,3 @@ def home():
         "message": "Doctor Appointment Booking API"
     }
 
-
-application = app
