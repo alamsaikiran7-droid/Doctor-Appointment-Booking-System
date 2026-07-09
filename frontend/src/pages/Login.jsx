@@ -95,12 +95,17 @@ function Login() {
               </button>
             </form>
 
-            <p className="text-center text-sm text-muted mt-6">
-              New user?{" "}
-              <Link to={`/register/${role}`} className="text-primary font-semibold hover:underline">
-                Register here
-              </Link>
-            </p>
+            {role === "patient" && (
+              <p className="text-center text-sm text-muted mt-6">
+                New user?{" "}
+                <Link
+                  to="/register/patient"
+                  className="text-primary font-semibold hover:underline"
+                >
+                  Register here
+                </Link>
+              </p>
+            )}
           </div>
         </div>
       </section>
