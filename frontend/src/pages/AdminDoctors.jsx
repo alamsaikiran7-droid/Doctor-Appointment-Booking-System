@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiSearch,
   FiEdit2,
@@ -8,12 +9,13 @@ import {
 } from "react-icons/fi";
 
 import DashboardLayout from "../layouts/DashboardLayout";
-import { getDoctors } from "../services/doctorService";
+import {getDoctors,deleteDoctor,} from "../services/doctorService";
 
 function AdminDoctors() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadDoctors();
@@ -60,14 +62,22 @@ function AdminDoctors() {
     );
   };
 
-  const handleDelete = (doctor) => {
-    const ok = window.confirm(`Delete ${doctor.name}?`);
+  const handleDelete = async (doctor) => {
+
+    const ok = window.confirm(
+      `Delete ${doctor.name}?`
+    );
+
     if (!ok) return;
 
-    setDoctors((prev) => prev.filter((d) => d.id !== doctor.id));
-    alert("Doctor removed locally.");
-  };
+    deleteDoctor(doctor.id);
 
+    const data = await getDoctors();
+
+    setDoctors(data);
+
+    alert("Doctor deleted successfully.");
+  };
   return (
     <DashboardLayout role="admin">
       {/* Header */}
@@ -80,7 +90,10 @@ function AdminDoctors() {
           <p className="text-muted mt-2">Manage all registered doctors.</p>
         </div>
 
-        <button className="btn-primary">
+        <button 
+          onClick={() => navigate("/admin/doctors/add")}
+          className="btn-primary"
+        >
           <FiUserPlus size={18} />
           Add Doctor
         </button>

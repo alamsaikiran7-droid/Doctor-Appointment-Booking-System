@@ -18,6 +18,7 @@ import DoctorAvailability from "../pages/DoctorAvailability";
 import DoctorAccount from "../pages/DoctorAccount";
 import AdminDashboard from "../pages/AdminDashboard";
 import AdminDoctors from "../pages/AdminDoctors";
+import AddDoctor from "../pages/AddDoctor";
 import AdminPatients from "../pages/AdminPatients";
 import AdminAppointments from "../pages/AdminAppointments";
 import AdminReports from "../pages/AdminReports";
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="/doctor/availability" element={<DoctorAvailability />} />
         <Route path="/doctor/profile" element={<DoctorAccount />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/doctors/add" element={<AddDoctor />}/>
         <Route path="/admin/doctors" element={<AdminDoctors />} />
         <Route path="/admin/patients" element={<AdminPatients />} />
         <Route path="/admin/appointments" element={<AdminAppointments />} />

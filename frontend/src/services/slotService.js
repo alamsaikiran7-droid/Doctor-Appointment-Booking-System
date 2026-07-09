@@ -2,9 +2,9 @@ import api from "./api";
 
 const SLOT_KEY = "novacare_slots";
 
-// ============================================
+// ===========================================
 // Local Storage Helpers
-// ============================================
+// ===========================================
 
 function getLocalSlots() {
   try {
@@ -18,30 +18,60 @@ function saveLocalSlots(slots) {
   localStorage.setItem(SLOT_KEY, JSON.stringify(slots));
 }
 
-// ============================================
+// ===========================================
 // Get Doctor Slots
-// ============================================
+// ===========================================
 
 export async function getDoctorSlots(doctorId) {
+  let slots = [];
+
   try {
     const { data } = await api.get(`/slots/doctor/${doctorId}`);
-    return data;
-  } catch (err) {
-    return getLocalSlots().filter(
+    slots = data;
+  } catch {
+    slots = getLocalSlots().filter(
       (slot) => Number(slot.doctor_id) === Number(doctorId)
     );
   }
+
+  // If Booking.jsx calls this function,
+  // convert slots into grouped format.
+  if (slots.length > 0 && slots[0].slot_date) {
+    const grouped = {};
+
+    slots.forEach((slot) => {
+      const date = slot.slot_date;
+
+      if (!grouped[date]) {
+        grouped[date] = {
+          date,
+          isoDate: date,
+          slots: [],
+        };
+      }
+
+      grouped[date].slots.push({
+        id: slot.id,
+        time: slot.slot_time,
+        status: slot.status,
+      });
+    });
+
+    return Object.values(grouped);
+  }
+
+  return slots;
 }
 
-// ============================================
+// ===========================================
 // Create Slot
-// ============================================
+// ===========================================
 
 export async function createSlot(slot) {
   try {
     const { data } = await api.post("/slots", slot);
     return data;
-  } catch (err) {
+  } catch {
     const slots = getLocalSlots();
 
     const newSlot = {
@@ -60,15 +90,15 @@ export async function createSlot(slot) {
   }
 }
 
-// ============================================
+// ===========================================
 // Update Slot
-// ============================================
+// ===========================================
 
 export async function updateSlot(id, updatedData) {
   try {
     const { data } = await api.put(`/slots/${id}`, updatedData);
     return data;
-  } catch (err) {
+  } catch {
     const slots = getLocalSlots();
 
     const updatedSlots = slots.map((slot) =>
@@ -86,15 +116,15 @@ export async function updateSlot(id, updatedData) {
   }
 }
 
-// ============================================
+// ===========================================
 // Delete Slot
-// ============================================
+// ===========================================
 
 export async function deleteSlot(id) {
   try {
     await api.delete(`/slots/${id}`);
     return true;
-  } catch (err) {
+  } catch {
     const slots = getLocalSlots().filter(
       (slot) => slot.id !== id
     );
@@ -105,15 +135,15 @@ export async function deleteSlot(id) {
   }
 }
 
-// ============================================
-// Mark Slot as Booked
-// ============================================
+// ===========================================
+// Book Slot
+// ===========================================
 
 export async function bookSlot(id) {
   try {
     const { data } = await api.put(`/slots/${id}/book`);
     return data;
-  } catch (err) {
+  } catch {
     const slots = getLocalSlots();
 
     const slot = slots.find((s) => s.id === id);
@@ -128,15 +158,15 @@ export async function bookSlot(id) {
   }
 }
 
-// ============================================
-// Mark Slot as Available Again
-// ============================================
+// ===========================================
+// Release Slot
+// ===========================================
 
 export async function releaseSlot(id) {
   try {
     const { data } = await api.put(`/slots/${id}/release`);
     return data;
-  } catch (err) {
+  } catch {
     const slots = getLocalSlots();
 
     const slot = slots.find((s) => s.id === id);

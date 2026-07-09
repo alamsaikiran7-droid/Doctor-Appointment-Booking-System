@@ -1,5 +1,28 @@
 import api from "./api";
 import { doctors } from "../data/doctors";
+const DOCTOR_KEY = "novacare_doctors";
+
+// Initialize doctors in localStorage only once
+function initializeDoctors() {
+  if (!localStorage.getItem(DOCTOR_KEY)) {
+    localStorage.setItem(
+      DOCTOR_KEY,
+      JSON.stringify(doctors)
+    );
+  }
+}
+
+function getLocalDoctors() {
+  initializeDoctors();
+  return JSON.parse(localStorage.getItem(DOCTOR_KEY));
+}
+
+function saveLocalDoctors(list) {
+  localStorage.setItem(
+    DOCTOR_KEY,
+    JSON.stringify(list)
+  );
+}
 
 /*
 =========================================
@@ -48,9 +71,11 @@ export async function getDoctors() {
 
   } catch (err) {
 
-    console.log("Using local doctors");
+    console.log("Using localStorage doctors");
 
-    return doctors.map(normalizeDoctor);
+    return getLocalDoctors().map(normalizeDoctor);
+
+    
   }
 }
 
@@ -71,7 +96,7 @@ export async function getDoctorById(id) {
 
   } catch (err) {
 
-    const doctor = doctors.find(
+    const doctor = getLocalDoctors().find(
       (d) => Number(d.id) === Number(id)
     );
 
@@ -107,7 +132,7 @@ export async function searchDoctors(
 
   } catch (err) {
 
-    return doctors
+    return getLocalDoctors()
       .filter((doctor) => {
 
         const cityMatch =
@@ -195,4 +220,80 @@ export async function getDoctorStatistics() {
             ) / list.length
           ),
   };
+}
+
+/*
+=========================================
+Add Doctor
+=========================================
+*/
+export function addDoctor(doctor) {
+
+  const list = getLocalDoctors();
+
+  const newDoctor = {
+    ...doctor,
+
+    id: Date.now(),
+
+    rating: 4.8,
+
+    reviews: 0,
+
+    languages: doctor.languages
+      ? doctor.languages
+          .split(",")
+          .map((l) => l.trim())
+      : [],
+
+    education: doctor.education
+      ? doctor.education
+          .split(",")
+          .map((e) => e.trim())
+      : [],
+
+    experience: Number(doctor.experience),
+
+    fee: Number(doctor.fee),
+  };
+
+  list.push(newDoctor);
+
+  saveLocalDoctors(list);
+
+  return newDoctor;
+}
+
+/*
+=========================================
+Update Doctor
+=========================================
+*/
+export function updateDoctor(updatedDoctor) {
+
+  const list = getLocalDoctors();
+
+  const updated = list.map((doctor) =>
+    doctor.id === updatedDoctor.id
+      ? updatedDoctor
+      : doctor
+  );
+
+  saveLocalDoctors(updated);
+}
+
+/*
+=========================================
+Delete Doctor
+=========================================
+*/
+export function deleteDoctor(id) {
+
+  const updated = getLocalDoctors().filter(
+    (doctor) => Number(doctor.id) !== Number(id)
+  );
+
+  saveLocalDoctors(updated);
+
+  return updated;
 }

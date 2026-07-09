@@ -186,35 +186,52 @@ function Booking() {
       </MainLayout>
     );
   }
+  console.log("Doctor:", doctor);
+  console.log("Days:", days);
+  console.log("Active Day:", activeDay);
+  console.log("Slots:", days[activeDay]?.slots);
 
   return (
     <MainLayout>
 
-      <section className="py-12">
+      <section className="bg-gray-50 min-h-screen py-10">
 
-        <div className="container-nc">
+        <div className="container-nc max-w-7xl mx-auto">
 
           <Link
             to={`/doctors/${doctor.id}`}
-            className="inline-flex items-center gap-2 mb-6 text-muted hover:text-primary"
+            className="inline-flex items-center gap-2 text-primary font-medium mb-8 hover:underline"
           >
             <FiArrowLeft />
-            Back
+            Back to Doctor Profile
           </Link>
 
-          <div className="grid lg:grid-cols-[1.4fr_1fr] gap-8">
+          <div className="grid lg:grid-cols-[1.55fr_0.9fr] gap-8">
 
-            <div className="card p-6">
+            {/* LEFT SIDE */}
 
-              <h2 className="text-xl font-semibold mb-2">
-                Select Appointment Slot
+            <div className="bg-white rounded-3xl shadow-lg p-8 border">
+
+              <h2 className="text-3xl font-bold text-gray-800">
+                Choose Appointment Slot
               </h2>
 
-              <p className="text-muted mb-5">
-                {doctor.name}
+              <p className="text-gray-500 mt-2 mb-8">
+
+                Book an appointment with
+
+                <span className="font-semibold text-primary">
+
+                  {" "}
+                  {doctor.name}
+
+                </span>
+
               </p>
 
-              <div className="flex gap-2 overflow-auto mb-6">
+              {/* Date Selector */}
+
+              <div className="flex gap-3 overflow-x-auto pb-3 mb-8">
 
                 {days.map((day, index) => (
 
@@ -224,116 +241,142 @@ function Booking() {
                       setActiveDay(index);
                       setSelectedSlot(null);
                     }}
-                    className={
+                    className={`min-w-[120px] rounded-2xl px-5 py-4 border transition duration-200
+
+                    ${
                       activeDay === index
-                        ? "btn-primary"
-                        : "btn-outline"
-                    }
+                        ? "bg-primary text-white border-primary shadow-md"
+                        : "bg-white hover:border-primary hover:text-primary"
+                    }`}
                   >
-                    {day.date}
+
+                    <p className="font-semibold text-sm">
+
+                      {day.date}
+
+                    </p>
+
                   </button>
 
                 ))}
 
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              {/* Available Time Slots */}
+
+              <h3 className="text-lg font-semibold text-gray-700 mb-5">
+
+                Available Time Slots
+
+              </h3>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
                 {(days[activeDay]?.slots || []).map((slot) => (
-
                   <button
                     key={slot.id}
+                    type="button"
                     disabled={slot.status === "BOOKED"}
                     onClick={() => setSelectedSlot(slot)}
-                    className={`border rounded-xl py-3
+                    className={`rounded-2xl border py-4 px-3 transition-all font-semibold
+
                     ${
                       slot.status === "BOOKED"
-                        ? "bg-gray-100 text-gray-400"
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                         : selectedSlot?.id === slot.id
-                        ? "bg-primary text-white"
-                        : "hover:border-primary"
+                        ? "bg-primary text-white border-primary shadow-lg"
+                        : "bg-white hover:border-primary hover:bg-primary/5"
                     }`}
                   >
                     {slot.time}
                   </button>
-
                 ))}
-
               </div>
 
             </div>
 
+            {/* ================= RIGHT SIDE ================= */}
+
             <form
               onSubmit={handleConfirm}
-              className="card p-6 h-fit"
+              className="bg-white rounded-3xl shadow-lg border border-gray-200 p-8 h-fit sticky top-8"
             >
 
-              <h2 className="text-xl font-semibold mb-6">
-                Patient Information
+              <h2 className="text-2xl font-bold text-gray-800">
+                Patient Details
               </h2>
 
-              <div className="space-y-4">
+              <p className="text-gray-500 mt-2 mb-8">
+                Complete your appointment booking.
+              </p>
 
-                <div>
+              <div className="mb-5">
 
-                  <label className="label">
-                    Patient Name
-                  </label>
+                <label className="block text-sm font-medium mb-2">
+                  Patient Name
+                </label>
 
-                  <input
-                    className="input"
-                    value={patientName}
-                    onChange={(e) =>
-                      setPatientName(e.target.value)
-                    }
-                    required
-                  />
-
-                </div>
-
-                <div>
-
-                  <label className="label">
-                    Phone Number
-                  </label>
-
-                  <input
-                    className="input"
-                    value={phone}
-                    onChange={(e) =>
-                      setPhone(e.target.value)
-                    }
-                    required
-                  />
-
-                </div>
+                <input
+                  type="text"
+                  value={patientName}
+                  onChange={(e) => setPatientName(e.target.value)}
+                  className="input"
+                  required
+                />
 
               </div>
 
-              <div className="border-t mt-6 pt-6 space-y-2">
+              <div className="mb-6">
 
-                <div className="flex justify-between">
-                  <span>Doctor</span>
-                  <span>{doctor.name}</span>
-                </div>
+                <label className="block text-sm font-medium mb-2">
+                  Phone Number
+                </label>
 
-                <div className="flex justify-between">
-                  <span>Date</span>
-                  <span>{days[activeDay]?.date}</span>
-                </div>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="input"
+                  required
+                />
 
-                <div className="flex justify-between">
-                  <span>Time</span>
-                  <span>{selectedSlot?.time || "-"}</span>
-                </div>
+              </div>
 
-                <div className="flex justify-between">
-                  <span>Fee</span>
-                  <span>
-                    ₹
-                    {doctor.consultation_fee ||
-                      doctor.fee}
-                  </span>
+              <div className="border rounded-2xl p-5 bg-slate-50">
+
+                <h3 className="font-semibold text-lg mb-4">
+                  Appointment Summary
+                </h3>
+
+                <div className="space-y-3">
+
+                  <div className="flex justify-between">
+                    <span>Doctor</span>
+                    <span>{doctor.name}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Date</span>
+                    <span>{days[activeDay]?.date}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <span>Time</span>
+                    <span>{selectedSlot?.time || "-"}</span>
+                  </div>
+
+                  <div className="flex justify-between">
+
+                    <span>Fee</span>
+
+                    <span className="font-bold text-primary">
+
+                      ₹{doctor.consultation_fee || doctor.fee}
+
+                    </span>
+
+                  </div>
+
                 </div>
 
               </div>
@@ -341,11 +384,9 @@ function Booking() {
               <button
                 type="submit"
                 disabled={!selectedSlot || submitting}
-                className="btn-primary w-full mt-6"
+                className="btn-primary w-full mt-8"
               >
-                {submitting
-                  ? "Booking..."
-                  : "Confirm Appointment"}
+                {submitting ? "Booking..." : "Confirm Appointment"}
               </button>
 
             </form>
