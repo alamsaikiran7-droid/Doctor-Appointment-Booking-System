@@ -1,313 +1,102 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { FiSearch, FiFilter } from "react-icons/fi";
 import MainLayout from "../layouts/MainLayout";
 import DoctorCard from "../components/DoctorCard";
-import doctors from "../data/doctors";
+import SectionHeading from "../components/SectionHeading";
+import { getDoctors } from "../services/doctorService";
+import { cities, specializationList } from "../data/doctors";
 
 function Doctors() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // ==========================
-  // State Variables
-  // ==========================
+  const q = searchParams.get("q") || "";
+  const city = searchParams.get("city") || "";
+  const specialization = searchParams.get("specialization") || "";
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [speciality, setSpeciality] = useState("");
-  const [city, setCity] = useState("");
-  const [sortOrder, setSortOrder] = useState("");
+  useEffect(() => {
+    setLoading(true);
+    getDoctors({ q, city, specialization }).then((data) => {
+      setDoctors(data);
+      setLoading(false);
+    });
+  }, [q, city, specialization]);
 
-  // ==========================
-  // Copy Doctor Array
-  // ==========================
-
-  let filteredDoctors = [...doctors];
-
-  // ==========================
-  // Search by Doctor Name
-  // ==========================
-
-  filteredDoctors = filteredDoctors.filter((doctor) =>
-    doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // ==========================
-  // Filter by Speciality
-  // ==========================
-
-  if (speciality !== "") {
-    filteredDoctors = filteredDoctors.filter(
-      (doctor) => doctor.speciality === speciality
-    );
-  }
-
-  // ==========================
-  // Filter by City
-  // ==========================
-
-  if (city !== "") {
-    filteredDoctors = filteredDoctors.filter(
-      (doctor) => doctor.city === city
-    );
-  }
-
-  // ==========================
-  // Sort by Consultation Fee
-  // ==========================
-
-  if (sortOrder === "low") {
-    filteredDoctors.sort(
-      (a, b) => a.consultation_fee - b.consultation_fee
-    );
-  }
-
-  if (sortOrder === "high") {
-    filteredDoctors.sort(
-      (a, b) => b.consultation_fee - a.consultation_fee
-    );
-  }
-
-  // ==========================
-  // Clear Filters
-  // ==========================
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setSpeciality("");
-    setCity("");
-    setSortOrder("");
+  const updateParam = (key, value) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next);
   };
 
   return (
     <MainLayout>
-
-      <div className="container mt-4">
-
-        <h2 className="text-center mb-4">
-          Our Doctors
-        </h2>
-
-        {/* ==========================
-            Filters
-        ========================== */}
-
-        <div className="row mb-4">
-
-          {/* Search */}
-
-          <div className="col-md-3">
-
-            <label className="form-label">
-              Search Doctor
-            </label>
-
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Search Doctor..."
-              value={searchTerm}
-              onChange={(e) =>
-                setSearchTerm(e.target.value)
-              }
-            />
-
-          </div>
-
-          {/* Speciality */}
-
-          <div className="col-md-3">
-
-            <label className="form-label">
-              Speciality
-            </label>
-
-            <select
-              className="form-select"
-              value={speciality}
-              onChange={(e) =>
-                setSpeciality(e.target.value)
-              }
-            >
-
-              <option value="">
-                All
-              </option>
-
-              <option value="Dentist">
-                Dentist
-              </option>
-
-              <option value="Cardiologist">
-                Cardiologist
-              </option>
-
-              <option value="General Physician">
-                General Physician
-              </option>
-
-              <option value="General Surgeon">
-                General Surgeon
-              </option>
-
-              <option value="Orthopaedic Surgeon">
-                Orthopaedic Surgeon
-              </option>
-
-              <option value="Ophthalmologist">
-                Ophthalmologist
-              </option>
-
-              <option value="Urologist">
-                Urologist
-              </option>
-
-              <option value="Obstetrician & Gynecologist">
-                Obstetrician & Gynecologist
-              </option>
-
-              <option value="General Medicine & Geriatrics Physician">
-                General Medicine & Geriatrics Physician
-              </option>
-
-            </select>
-
-          </div>
-
-          {/* City */}
-
-          <div className="col-md-3">
-
-            <label className="form-label">
-              City
-            </label>
-
-            <select
-              className="form-select"
-              value={city}
-              onChange={(e) =>
-                setCity(e.target.value)
-              }
-            >
-
-              <option value="">
-                All Cities
-              </option>
-
-              <option value="Hyderabad">
-                Hyderabad
-              </option>
-
-              <option value="Chennai">
-                Chennai
-              </option>
-
-              <option value="Bangalore">
-                Bangalore
-              </option>
-
-            </select>
-
-          </div>
-
-          {/* Sort */}
-
-          <div className="col-md-3">
-
-            <label className="form-label">
-              Sort By Fee
-            </label>
-
-            <select
-              className="form-select"
-              value={sortOrder}
-              onChange={(e) =>
-                setSortOrder(e.target.value)
-              }
-            >
-
-              <option value="">
-                Default
-              </option>
-
-              <option value="low">
-                Fee: Low to High
-              </option>
-
-              <option value="high">
-                Fee: High to Low
-              </option>
-
-            </select>
-
-          </div>
-
+      <section className="pt-14 pb-6">
+        <div className="container-nc">
+          <SectionHeading
+            eyebrow="Doctor Directory"
+            title="120+ specialists, filtered to what you need"
+          />
         </div>
+      </section>
 
-        {/* Clear Filters */}
-
-        <div className="row mb-4">
-
-          <div className="col-md-3">
-
-            <button
-              className="btn btn-danger w-100"
-              onClick={clearFilters}
-            >
-              Clear Filters
-            </button>
-
-          </div>
-
-        </div>
-
-        {/* ==========================
-            Doctor Cards
-        ========================== */}
-
-        <div className="row">
-
-          {filteredDoctors.length > 0 ? (
-
-            filteredDoctors.map((doctor) => (
-
-              <div
-                className="col-lg-4 col-md-6 mb-4"
-                key={doctor.id}
-              >
-
-                <DoctorCard
-                  id={doctor.id}
-                  name={doctor.name}
-                  email={doctor.email}
-                  phone={doctor.phone}
-                  speciality={doctor.speciality}
-                  city={doctor.city}
-                  consultation_fee={doctor.consultation_fee}
-                  experience_years={doctor.experience_years}
-                  bio={doctor.bio}
-                  rating={doctor.rating}
-                  image={doctor.image}
-                />
-
-              </div>
-
-            ))
-
-          ) : (
-
-            <div className="text-center mt-5">
-
-              <h4>No Doctors Found</h4>
-
-              <p>
-                Try changing your search or filters.
-              </p>
-
+      <section className="pb-10">
+        <div className="container-nc">
+          <div className="card p-4 md:p-5 flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" size={16} />
+              <input
+                value={q}
+                onChange={(e) => updateParam("q", e.target.value)}
+                placeholder="Search by doctor name or specialty..."
+                className="input pl-10"
+              />
             </div>
-
-          )}
-
+            <select
+              value={specialization}
+              onChange={(e) => updateParam("specialization", e.target.value)}
+              className="input md:w-56"
+            >
+              <option value="">All Specialties</option>
+              {specializationList.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            <select
+              value={city}
+              onChange={(e) => updateParam("city", e.target.value)}
+              className="input md:w-48"
+            >
+              <option value="">All Cities</option>
+              {cities.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+          </div>
         </div>
+      </section>
 
-      </div>
-
+      <section className="pb-24">
+        <div className="container-nc">
+          {loading ? (
+            <p className="text-muted text-sm">Loading doctors…</p>
+          ) : doctors.length === 0 ? (
+            <div className="card p-16 text-center">
+              <FiFilter className="mx-auto text-muted mb-3" size={28} />
+              <p className="font-semibold text-ink">No doctors match those filters</p>
+              <p className="text-sm text-muted mt-1">Try clearing a filter or searching a different specialty.</p>
+            </div>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {doctors.map((doctor) => (
+                <DoctorCard key={doctor.id} doctor={doctor} />
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
     </MainLayout>
   );
 }

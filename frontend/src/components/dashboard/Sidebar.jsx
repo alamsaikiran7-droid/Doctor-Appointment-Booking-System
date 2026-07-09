@@ -1,71 +1,88 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import {
+  FiHome, FiCalendar, FiClock, FiUser, FiUsers, FiFileText,
+  FiPieChart, FiLogOut, FiHeart,
+} from "react-icons/fi";
+import useAuth from "../../hooks/useAuth";
+
+const menus = {
+  patient: [
+    { label: "Dashboard", to: "/patient/dashboard", icon: FiHome },
+    { label: "Book Appointment", to: "/doctors", icon: FiCalendar },
+    { label: "My Appointments", to: "/my-appointments", icon: FiClock },
+    { label: "Profile", to: "/patient/dashboard", icon: FiUser },
+  ],
+  doctor: [
+    { label: "Dashboard", to: "/doctor/dashboard", icon: FiHome },
+    { label: "Appointments", to: "/doctor/appointments", icon: FiClock },
+    { label: "Availability", to: "/doctor/availability", icon: FiCalendar },
+    { label: "Profile", to: "/doctor/profile", icon: FiUser },
+  ],
+  admin: [
+    { label: "Dashboard", to: "/admin/dashboard", icon: FiHome },
+    { label: "Doctors", to: "/admin/doctors", icon: FiUsers },
+    { label: "Patients", to: "/admin/patients", icon: FiUser },
+    { label: "Appointments", to: "/admin/appointments", icon: FiFileText },
+    { label: "Reports", to: "/admin/reports", icon: FiPieChart },
+  ],
+};
 
 function Sidebar({ role }) {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const items = menus[role] || [];
 
-  const patientMenu = [
-    { title: "Dashboard", path: "/patient/dashboard", icon: "🏠" },
-    { title: "Book Appointment", path: "/doctors", icon: "📅" },
-    { title: "My Appointments", path: "/my-appointments", icon: "📖" },
-    { title: "Profile", path: "/patient/profile", icon: "👤" },
-  ];
-
-  const doctorMenu = [
-    { title: "Dashboard", path: "/doctor/dashboard", icon: "🏠" },
-    { title: "Appointments", path: "/doctor/appointments", icon: "📅" },
-    { title: "Availability", path: "/doctor/availability", icon: "🕒" },
-    { title: "Profile", path: "/doctor/profile", icon: "👨‍⚕️" },
-  ];
-
-  const adminMenu = [
-    { title: "Dashboard", path: "/admin/dashboard", icon: "🏠" },
-    { title: "Doctors", path: "/admin/doctors", icon: "👨‍⚕️" },
-    { title: "Patients", path: "/admin/patients", icon: "🧑" },
-    { title: "Appointments", path: "/admin/appointments", icon: "📅" },
-    { title: "Reports", path: "/admin/reports", icon: "📊" },
-  ];
-
-  let menu = [];
-
-  if (role === "patient") menu = patientMenu;
-  if (role === "doctor") menu = doctorMenu;
-  if (role === "admin") menu = adminMenu;
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      logout();
+      navigate("/");
+    }
+  };
 
   return (
-    <div
-      className="bg-primary text-white p-3 d-flex flex-column"
-      style={{
-        width: "260px",
-        minHeight: "100vh",
-      }}
-    >
-      <h3 className="text-center mb-4">
-        🏥 MedCare
-      </h3>
+    <aside className="hidden md:flex flex-col w-64 shrink-0 bg-ink text-white/80 min-h-screen sticky top-0">
+      <Link to="/" className="flex items-center gap-2.5 px-6 h-[76px] border-b border-white/10">
+        <span className="w-9 h-9 rounded-lg bg-primary grid place-items-center">
+          <FiHeart className="text-white" size={16} />
+        </span>
+        <span className="font-display text-lg text-white leading-none">
+          NovaCare
+        </span>
+      </Link>
 
-      {menu.map((item) => (
-        <NavLink
-          key={item.title}
-          to={item.path}
-          className="text-white text-decoration-none mb-3 p-2 rounded"
+      <nav className="flex-1 px-4 py-6 space-y-1.5">
+        <p className="eyebrow !text-white/35 px-3 mb-3">
+          {role} panel
+        </p>
+        {items.map(({ label, to, icon: Icon }, idx) => (
+          <NavLink
+            key={label + idx}
+            to={to}
+            end
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                isActive
+                  ? "bg-primary text-white"
+                  : "text-white/65 hover:bg-white/5 hover:text-white"
+              }`
+            }
+          >
+            <Icon size={16} />
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="px-4 py-5 border-t border-white/10">
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-white/65 hover:bg-white/5 hover:text-accent transition w-full"
         >
-          {item.icon} {item.title}
-        </NavLink>
-      ))}
-
-      <div className="mt-auto">
-
-        <hr />
-
-        <NavLink
-          to="/"
-          className="text-white text-decoration-none"
-        >
-          🚪 Logout
-        </NavLink>
-
+          <FiLogOut size={16} />
+          Logout
+        </button>
       </div>
-
-    </div>
+    </aside>
   );
 }
 

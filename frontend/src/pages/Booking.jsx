@@ -1,264 +1,351 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { FiArrowLeft, FiCheck } from "react-icons/fi";
+
 import MainLayout from "../layouts/MainLayout";
-import doctors from "../data/doctors";
+
+import { getDoctorById } from "../services/doctorService";
+import { getDoctorSlots } from "../services/slotService";
+import { bookAppointment } from "../services/appointmentService";
+
+import useAuth from "../hooks/useAuth";
 
 function Booking() {
-
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const doctor = doctors.find(
-    (doc) => doc.id === Number(id)
+  const [doctor, setDoctor] = useState(null);
+  const [days, setDays] = useState([]);
+  const [activeDay, setActiveDay] = useState(0);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+
+  const [patientName, setPatientName] = useState(
+    user?.full_name || user?.name || ""
   );
 
-  // Doctor Not Found
-  if (!doctor) {
+  const [phone, setPhone] = useState("");
+
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  useEffect(() => {
+    loadDoctor();
+  }, [id]);
+
+  async function loadDoctor() {
+    try {
+      setLoading(true);
+
+      const doctorData = await getDoctorById(id);
+      const slotData = await getDoctorSlots(id);
+
+      setDoctor(doctorData);
+      setDays(slotData || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleConfirm(e) {
+    e.preventDefault();
+
+    if (!selectedSlot) {
+      alert("Please select a slot.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+
+      await bookAppointment({
+        doctorId: doctor.id,
+        patientId: user?.id,
+
+        doctorName: doctor.name,
+        patientName,
+
+        phone,
+
+        specialization:
+          doctor.speciality || doctor.specialization,
+
+        date:
+          days[activeDay]?.isoDate ||
+          days[activeDay]?.date,
+
+        time: selectedSlot.time,
+
+        notes: "",
+      });
+
+      setConfirmed(true);
+    } catch (err) {
+      console.error(err);
+      alert("Booking failed");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) {
     return (
       <MainLayout>
-        <div className="container mt-5 text-center">
-          <h2>Doctor Not Found</h2>
+        <div className="container-nc py-24 text-center">
+          Loading...
         </div>
       </MainLayout>
     );
   }
 
-  // ==========================
-  // Form State
-  // ==========================
-
-  const [formData, setFormData] = useState({
-    patientName: "",
-    email: "",
-    phone: "",
-    date: "",
-    time: "",
-  });
-
-  // ==========================
-  // Handle Input Change
-  // ==========================
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  // ==========================
-  // Submit Appointment
-  // ==========================
-
-  const handleSubmit = (e) => {
-
-    e.preventDefault();
-
-    const appointment = {
-
-      doctorId: doctor.id,
-
-      doctorName: doctor.name,
-
-      doctorEmail: doctor.email,
-
-      doctorPhone: doctor.phone,
-
-      speciality: doctor.speciality,
-
-      city: doctor.city,
-
-      consultation_fee: doctor.consultation_fee,
-
-      experience_years: doctor.experience_years,
-
-      patientName: formData.patientName,
-
-      patientEmail: formData.email,
-
-      patientPhone: formData.phone,
-
-      date: formData.date,
-
-      time: formData.time,
-
-      status: "Booked"
-
-    };
-
-    const appointments =
-      JSON.parse(localStorage.getItem("appointments")) || [];
-
-    appointments.push(appointment);
-
-    localStorage.setItem(
-      "appointments",
-      JSON.stringify(appointments)
+  if (!doctor) {
+    return (
+      <MainLayout>
+        <div className="container-nc py-24 text-center">
+          Doctor not found.
+        </div>
+      </MainLayout>
     );
+  }
 
-    alert("Appointment Booked Successfully!");
+  if (!user) {
+    return (
+      <MainLayout>
+        <section className="py-24">
+          <div className="container-nc max-w-lg mx-auto">
+            <div className="card p-8 text-center">
+              <h2 className="text-2xl font-semibold mb-4">
+                Login Required
+              </h2>
 
-    navigate("/my-appointments");
+              <p className="text-muted mb-6">
+                Please login as a patient before booking.
+              </p>
 
-  };
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => navigate("/login/patient")}
+                  className="btn-primary"
+                >
+                  Login
+                </button>
+
+                <button
+                  onClick={() => navigate("/register/patient")}
+                  className="btn-outline"
+                >
+                  Register
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </MainLayout>
+    );
+  }
+
+  if (confirmed) {
+    return (
+      <MainLayout>
+        <div className="container-nc py-24 max-w-xl mx-auto text-center">
+
+          <div className="w-16 h-16 rounded-full bg-primary-light mx-auto grid place-items-center text-primary">
+            <FiCheck size={28} />
+          </div>
+
+          <h2 className="text-3xl font-semibold mt-6">
+            Appointment Booked
+          </h2>
+
+          <p className="text-muted mt-4">
+            Your appointment with
+            <strong> {doctor.name}</strong>
+            has been submitted successfully.
+          </p>
+
+          <div className="flex justify-center gap-3 mt-8">
+            <Link
+              to="/my-appointments"
+              className="btn-primary"
+            >
+              My Appointments
+            </Link>
+
+            <Link
+              to="/doctors"
+              className="btn-outline"
+            >
+              Book Another
+            </Link>
+          </div>
+
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
-
     <MainLayout>
 
-      <div className="container mt-5">
+      <section className="py-12">
 
-        <div className="card shadow border-0 rounded-4">
+        <div className="container-nc">
 
-          <div className="card-body p-4">
+          <Link
+            to={`/doctors/${doctor.id}`}
+            className="inline-flex items-center gap-2 mb-6 text-muted hover:text-primary"
+          >
+            <FiArrowLeft />
+            Back
+          </Link>
 
-            <h2 className="text-center mb-4">
-              Book Appointment
-            </h2>
+          <div className="grid lg:grid-cols-[1.4fr_1fr] gap-8">
 
-            {/* Doctor Details */}
+            <div className="card p-6">
 
-            <div className="alert alert-primary">
+              <h2 className="text-xl font-semibold mb-2">
+                Select Appointment Slot
+              </h2>
 
-              <h4 className="mb-3">
+              <p className="text-muted mb-5">
                 {doctor.name}
-              </h4>
-
-              <p>
-                <strong>Speciality:</strong> {doctor.speciality}
               </p>
 
-              <p>
-                <strong>City:</strong> {doctor.city}
-              </p>
+              <div className="flex gap-2 overflow-auto mb-6">
 
-              <p>
-                <strong>Experience:</strong>{" "}
-                {doctor.experience_years} Years
-              </p>
+                {days.map((day, index) => (
 
-              <p>
-                <strong>Consultation Fee:</strong> ₹
-                {doctor.consultation_fee}
-              </p>
+                  <button
+                    key={day.isoDate || day.date}
+                    onClick={() => {
+                      setActiveDay(index);
+                      setSelectedSlot(null);
+                    }}
+                    className={
+                      activeDay === index
+                        ? "btn-primary"
+                        : "btn-outline"
+                    }
+                  >
+                    {day.date}
+                  </button>
 
-              <p>
-                <strong>Email:</strong> {doctor.email}
-              </p>
+                ))}
 
-              <p>
-                <strong>Phone:</strong> {doctor.phone}
-              </p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+
+                {(days[activeDay]?.slots || []).map((slot) => (
+
+                  <button
+                    key={slot.id}
+                    disabled={slot.status === "BOOKED"}
+                    onClick={() => setSelectedSlot(slot)}
+                    className={`border rounded-xl py-3
+                    ${
+                      slot.status === "BOOKED"
+                        ? "bg-gray-100 text-gray-400"
+                        : selectedSlot?.id === slot.id
+                        ? "bg-primary text-white"
+                        : "hover:border-primary"
+                    }`}
+                  >
+                    {slot.time}
+                  </button>
+
+                ))}
+
+              </div>
 
             </div>
 
-            {/* Booking Form */}
+            <form
+              onSubmit={handleConfirm}
+              className="card p-6 h-fit"
+            >
 
-            <form onSubmit={handleSubmit}>
+              <h2 className="text-xl font-semibold mb-6">
+                Patient Information
+              </h2>
 
-              <div className="mb-3">
+              <div className="space-y-4">
 
-                <label className="form-label">
-                  Patient Name
-                </label>
+                <div>
 
-                <input
-                  type="text"
-                  className="form-control"
-                  name="patientName"
-                  value={formData.patientName}
-                  onChange={handleChange}
-                  required
-                />
+                  <label className="label">
+                    Patient Name
+                  </label>
 
-              </div>
+                  <input
+                    className="input"
+                    value={patientName}
+                    onChange={(e) =>
+                      setPatientName(e.target.value)
+                    }
+                    required
+                  />
 
-              <div className="mb-3">
+                </div>
 
-                <label className="form-label">
-                  Email
-                </label>
+                <div>
 
-                <input
-                  type="email"
-                  className="form-control"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
+                  <label className="label">
+                    Phone Number
+                  </label>
 
-              </div>
+                  <input
+                    className="input"
+                    value={phone}
+                    onChange={(e) =>
+                      setPhone(e.target.value)
+                    }
+                    required
+                  />
 
-              <div className="mb-3">
-
-                <label className="form-label">
-                  Phone Number
-                </label>
-
-                <input
-                  type="tel"
-                  className="form-control"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                />
+                </div>
 
               </div>
 
-              <div className="mb-3">
+              <div className="border-t mt-6 pt-6 space-y-2">
 
-                <label className="form-label">
-                  Appointment Date
-                </label>
+                <div className="flex justify-between">
+                  <span>Doctor</span>
+                  <span>{doctor.name}</span>
+                </div>
 
-                <input
-                  type="date"
-                  className="form-control"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  required
-                />
+                <div className="flex justify-between">
+                  <span>Date</span>
+                  <span>{days[activeDay]?.date}</span>
+                </div>
 
-              </div>
+                <div className="flex justify-between">
+                  <span>Time</span>
+                  <span>{selectedSlot?.time || "-"}</span>
+                </div>
 
-              <div className="mb-4">
-
-                <label className="form-label">
-                  Appointment Time
-                </label>
-
-                <select
-                  className="form-select"
-                  name="time"
-                  value={formData.time}
-                  onChange={handleChange}
-                  required
-                >
-
-                  <option value="">
-                    Select Time
-                  </option>
-
-                  <option>09:00 AM</option>
-                  <option>10:00 AM</option>
-                  <option>11:00 AM</option>
-                  <option>12:00 PM</option>
-                  <option>02:00 PM</option>
-                  <option>03:00 PM</option>
-                  <option>04:00 PM</option>
-
-                </select>
+                <div className="flex justify-between">
+                  <span>Fee</span>
+                  <span>
+                    ₹
+                    {doctor.consultation_fee ||
+                      doctor.fee}
+                  </span>
+                </div>
 
               </div>
 
               <button
                 type="submit"
-                className="btn btn-success w-100"
+                disabled={!selectedSlot || submitting}
+                className="btn-primary w-full mt-6"
               >
-                Confirm Appointment
+                {submitting
+                  ? "Booking..."
+                  : "Confirm Appointment"}
               </button>
 
             </form>
@@ -267,10 +354,9 @@ function Booking() {
 
         </div>
 
-      </div>
+      </section>
 
     </MainLayout>
-
   );
 }
 
