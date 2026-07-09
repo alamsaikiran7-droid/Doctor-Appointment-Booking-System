@@ -10,7 +10,12 @@ from app.schemas.appointment_schema import (
     AppointmentCreate,
     AppointmentUpdate,
 )
-
+from backend.app.utils.notification import appointment_booked_message
+from app.utils.notification import (
+    appointment_booked_message,
+    appointment_cancelled_message,
+    send_sms
+)
 
 # =====================================
 # Book Appointment
@@ -66,6 +71,19 @@ def book_appointment(
 
     db.commit()
     db.refresh(new_appointment)
+    #Send  Sms Notification 
+    message  =  appointment_booked_message(
+        patient_name =patient.name,
+        doctor_name = doctor.name,
+        slot_date = slot.slot_date,
+        slot_time = slot.start_time
+    )
+
+    send_sms(
+        patient.phone,
+        message
+    )
+
 
     return new_appointment
 
@@ -162,14 +180,35 @@ def cancel_appointment(
     appointment.status = "CANCELLED"
 
     slot = db.query(Slot).filter(
-        Slot.id == appointment.slot_id
-    ).first()
+    Slot.id == appointment.slot_id
+     ).first()
 
     if slot:
-        slot.is_available = True
+       slot.is_available = True
 
     db.commit()
     db.refresh(appointment)
+
+    # Get Patient
+    patient = db.query(User).filter(
+       User.id == appointment.patient_id
+    ).first()
+
+    # Get Doctor
+    doctor = db.query(Doctor).filter(
+        Doctor.id == appointment.doctor_id
+    ).first()
+
+    # Send SMS
+    message = appointment_cancelled_message(
+     patient_name=patient.name,
+     doctor_name=doctor.name
+   )
+
+    send_sms(
+       patient.phone,
+       message
+   )
 
     return appointment
 
