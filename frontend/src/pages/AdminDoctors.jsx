@@ -11,11 +11,13 @@ import {
 import DashboardLayout from "../layouts/DashboardLayout";
 import {getDoctors,deleteDoctor,} from "../services/doctorService";
 
+
 function AdminDoctors() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     loadDoctors();
@@ -184,7 +186,8 @@ function AdminDoctors() {
                   filteredDoctors.map((doctor) => (
                     <tr
                       key={doctor.id}
-                      className="border-t border-line hover:bg-bg transition"
+                      onClick={() => navigate(`/admin/doctors/${doctor.id}`)}
+                      className="border-t border-line hover:bg-bg transition cursor-pointer"
                     >
                       <td className="px-6 py-5">
                         <div>
@@ -218,14 +221,20 @@ function AdminDoctors() {
                       <td className="px-6 py-5">
                         <div className="flex justify-center gap-3">
                           <button
-                            onClick={() => handleEdit(doctor)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(doctor);
+                            }}  
                             className="w-10 h-10 rounded-xl bg-blue-50 hover:bg-blue-100 grid place-items-center transition"
                           >
                             <FiEdit2 className="text-blue-600" size={18} />
                           </button>
 
                           <button
-                            onClick={() => handleDelete(doctor)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(doctor);
+                            }}  
                             className="w-10 h-10 rounded-xl bg-red-50 hover:bg-red-100 grid place-items-center transition"
                           >
                             <FiTrash2 className="text-red-600" size={18} />

@@ -124,3 +124,49 @@ export function logout() {
   localStorage.removeItem("novacare_token");
   localStorage.removeItem("novacare_user");
 }
+
+
+export function changeDoctorPassword(currentPassword, newPassword) {
+  const user = JSON.parse(localStorage.getItem("novacare_user"));
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const users = JSON.parse(localStorage.getItem("novacare_users")) || [];
+
+  const index = users.findIndex(
+    (u) =>
+      u.username === user.username &&
+      u.role === "doctor"
+  );
+
+  if (index === -1) {
+    throw new Error("Doctor not found");
+  }
+
+  if (users[index].password !== currentPassword) {
+    throw new Error("Current password is incorrect");
+  }
+
+  // Update password in users list
+  users[index].password = newPassword;
+
+  localStorage.setItem(
+    "novacare_users",
+    JSON.stringify(users)
+  );
+
+  // Update logged-in user
+  const updatedUser = {
+    ...user,
+    password: newPassword,
+  };
+
+  localStorage.setItem(
+    "novacare_user",
+    JSON.stringify(updatedUser)
+  );
+
+  return true;
+}

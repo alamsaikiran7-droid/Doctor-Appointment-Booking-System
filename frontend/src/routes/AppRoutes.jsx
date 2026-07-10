@@ -23,6 +23,9 @@ import AdminPatients from "../pages/AdminPatients";
 import AdminAppointments from "../pages/AdminAppointments";
 import AdminReports from "../pages/AdminReports";
 import ForgotPassword from "../pages/ForgotPassword";
+import AdminDoctorDetails from "../pages/AdminDoctorDetails";
+import EditDoctorProfile from "../pages/EditDoctorProfile";
+import ChangeDoctorPassword from "../pages/ChangeDoctorPassword";
 
 import NotFound from "../pages/NotFound";
 
@@ -56,6 +59,9 @@ function AppRoutes() {
         <Route path="/admin/appointments" element={<AdminAppointments />} />
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/admin/doctors/:id" element={<AdminDoctorDetails />}/>
+        <Route path="/doctor/profile/edit" element={<EditDoctorProfile />}/>
+        <Route path="/doctor/change-password" element={<ChangeDoctorPassword />}/>
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

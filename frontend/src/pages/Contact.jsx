@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { FiMapPin, FiPhone, FiMail, FiClock, FiSend, FiCheck } from "react-icons/fi";
+import { FiMapPin, FiPhone, FiMail, FiClock } from "react-icons/fi";
 import MainLayout from "../layouts/MainLayout";
 import SectionHeading from "../components/SectionHeading";
 
@@ -11,15 +10,9 @@ const details = [
 ];
 
 function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
-  const [sent, setSent] = useState(false);
+  
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSent(true);
-  };
+  
 
   return (
     <MainLayout>
@@ -56,64 +49,12 @@ function Contact() {
             </div>
           </div>
 
-          <div className="card p-7 md:p-9">
-            {sent ? (
-              <div className="h-full flex flex-col items-center justify-center text-center py-16">
-                <span className="w-14 h-14 rounded-full bg-primary-light text-primary grid place-items-center mb-4">
-                  <FiCheck size={22} />
-                </span>
-                <h3 className="text-xl font-sans font-semibold text-ink">Message sent</h3>
-                <p className="text-sm text-muted mt-2 max-w-xs">
-                  Thanks, {form.name.split(" ")[0] || "there"} — our care team will reach out to {form.email || "your email"} shortly.
-                </p>
-                <button onClick={() => setSent(false)} className="btn-outline mt-6">
-                  Send another message
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <div>
-                    <label className="label">Full Name</label>
-                    <input
-                      required
-                      name="name"
-                      value={form.name}
-                      onChange={handleChange}
-                      className="input"
-                      placeholder="Anjali Sharma"
-                    />
-                  </div>
-                  <div>
-                    <label className="label">Email</label>
-                    <input
-                      required
-                      type="email"
-                      name="email"
-                      value={form.email}
-                      onChange={handleChange}
-                      className="input"
-                      placeholder="you@email.com"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="label">Message</label>
-                  <textarea
-                    required
-                    rows={6}
-                    name="message"
-                    value={form.message}
-                    onChange={handleChange}
-                    className="input resize-none"
-                    placeholder="How can our care team help?"
-                  />
-                </div>
-                <button type="submit" className="btn-primary w-full sm:w-auto">
-                  Send Message <FiSend size={14} />
-                </button>
-              </form>
-            )}
+          <div className="rounded-2xl overflow-hidden shadow-soft">
+            <img
+              src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1200&q=80&auto=format&fit=crop"
+              alt="NovaCare Hospital"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </section>

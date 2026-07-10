@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiUser,
   FiMail,
@@ -13,6 +14,7 @@ import useAuth from "../hooks/useAuth";
 
 function DoctorAccount() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [doctor, setDoctor] = useState({});
 
   useEffect(() => {
@@ -50,10 +52,7 @@ function DoctorAccount() {
 
           <p className="text-muted mt-2">{doctor.speciality}</p>
 
-          <button className="btn-primary w-full mt-8">
-            <FiEdit2 />
-            Edit Profile
-          </button>
+         
         </div>
 
         {/* RIGHT CARD */}
@@ -128,12 +127,19 @@ function DoctorAccount() {
 
           {/* Future Buttons */}
           <div className="flex flex-wrap gap-4 mt-8">
-            <button className="btn-primary">
-              <FiEdit2 />
+            <button
+              className="btn-primary"
+              onClick={() => navigate("/doctor/profile/edit")}
+            >
               Update Profile
             </button>
 
-            <button className="btn-outline">Change Password</button>
+            <button
+              className="btn-outline"
+              onClick={() => navigate("/doctor/change-password")}
+            >             
+              Change Password
+            </button>
           </div>
         </div>
       </div>

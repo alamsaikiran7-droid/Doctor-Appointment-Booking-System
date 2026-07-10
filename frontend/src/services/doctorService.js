@@ -297,3 +297,15 @@ export function deleteDoctor(id) {
 
   return updated;
 }
+
+export function updateDoctorProfile(updatedDoctor) {
+  const doctors = getLocalDoctors();
+
+  const updated = doctors.map((doctor) =>
+    Number(doctor.id) === Number(updatedDoctor.id)
+      ? updatedDoctor
+      : doctor
+  );
+
+  saveLocalDoctors(updated);
+}
