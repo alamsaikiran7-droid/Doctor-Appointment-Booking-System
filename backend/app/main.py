@@ -1,15 +1,47 @@
 from fastapi import FastAPI
 
+from app.config import settings
 from app.database import Base, engine
-from app.models import doctor
-from app.routers import doctor
+from app.models import appointment, doctor, slot, user
+from app.routers import appointments, doctors, slots
 
-app = FastAPI()
+from app.routers import (
+    appointments,
+    doctors,
+    slots,
+    auth,
+    admin,
+)
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION
+)
 application = app
 
-app.include_router(doctor.router)
+# ==========================================
+# Include Routers
+# ==========================================
+
+app.include_router(auth.router)
+app.include_router(admin.router)
+
+app.include_router(doctors.router)
+app.include_router(slots.router)
+app.include_router(appointments.router)
+
 Base.metadata.create_all(bind=engine)
+
+
+
+
+# ==========================================
+# Home Route
+# ==========================================
 
 @app.get("/")
 def home():
-    return {"message": "Doctor Appointment Booking API"}
+    return {
+        "message": "Doctor Appointment Booking API"
+    }
+
