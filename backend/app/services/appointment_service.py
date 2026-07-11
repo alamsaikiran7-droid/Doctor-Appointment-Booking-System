@@ -181,7 +181,7 @@ def cancel_appointment(
 
     slot = db.query(Slot).filter(
     Slot.id == appointment.slot_id
-     ).first()
+    ).first()
 
     if slot:
        slot.is_available = True
