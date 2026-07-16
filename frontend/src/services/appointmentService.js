@@ -1,308 +1,121 @@
-import api from "./api";
-import {
-  getAppointments,
-  saveAppointments,
-  saveAppointment,
-} from "../utils/storage";
+import api from "../api/api";
+import { adaptAppointment, adaptAppointmentsList } from "./adapters";
 
-/* =====================================
-   Book Appointment
-===================================== */
+/**
+ * ==========================================
+ * Book Appointment
+ * POST /appointments/
+ * ==========================================
+ */
+export const bookAppointment = async (appointmentData) => {
+  const response = await api.post("/appointments/", appointmentData);
+  return adaptAppointment(response.data);
+};
 
-export async function bookAppointment(appointment) {
-  try {
-    const { data } = await api.post(
-      "/appointments",
-      appointment
-    );
+/**
+ * ==========================================
+ * Get All Appointments
+ * GET /appointments/
+ * ==========================================
+ */
+export const getAllAppointments = async () => {
+  const response = await api.get("/appointments/");
+  return adaptAppointmentsList(response.data);
+};
 
-    return data;
-  } catch (error) {
-    console.log("Backend unavailable. Using LocalStorage.");
+/**
+ * ==========================================
+ * Get Appointment By ID
+ * GET /appointments/{appointment_id}
+ * ==========================================
+ */
+export const getAppointmentById = async (appointmentId) => {
+  const response = await api.get(`/appointments/${appointmentId}`);
+  return adaptAppointment(response.data);
+};
 
-    return saveAppointment({
-      ...appointment,
-      status: "PENDING",
-      createdAt: new Date().toISOString(),
-    });
-  }
-}
+/**
+ * ==========================================
+ * Get Patient Appointments
+ * GET /appointments/patient/{patient_id}
+ * ==========================================
+ */
+export const getPatientAppointments = async (patientId) => {
+  const response = await api.get(`/appointments/patient/${patientId}`);
+  return adaptAppointmentsList(response.data);
+};
 
-/* =====================================
-   Patient Appointments
-===================================== */
+/**
+ * ==========================================
+ * Get Doctor Appointments
+ * GET /appointments/doctor/{doctor_id}
+ * ==========================================
+ */
+export const getDoctorAppointments = async (doctorId) => {
+  const response = await api.get(`/appointments/doctor/${doctorId}`);
+  return adaptAppointmentsList(response.data);
+};
 
-export async function getPatientAppointments(patientId) {
-  try {
-    const { data } = await api.get(
-      `/appointments/patient/${patientId}`
-    );
+export const acceptAppointment = async (appointmentId) => {
+  const response = await api.put(
+    `/appointments/${appointmentId}/accept`
+  );
+  return adaptAppointment(response.data);
+};
 
-    return data;
-  } catch (error) {
-    console.log("Using LocalStorage.");
-
-    return getAppointments().filter(
-      (appointment) =>
-        Number(appointment.patientId) ===
-        Number(patientId)
-    );
-  }
-}
-
-/* =====================================
-   Doctor Appointments
-===================================== */
-
-export async function getDoctorAppointments(doctorId) {
-  try {
-    const { data } = await api.get(
-      `/appointments/doctor/${doctorId}`
-    );
-
-    return data;
-  } catch (error) {
-    console.log("Using LocalStorage.");
-
-    return getAppointments().filter(
-      (appointment) =>
-        Number(appointment.doctorId) ===
-        Number(doctorId)
-    );
-  }
-}
-
-/* =====================================
-   Get All Appointments
-===================================== */
-
-export async function getAllAppointments() {
-  try {
-    const { data } = await api.get(
-      "/appointments"
-    );
-
-    return data;
-  } catch (error) {
-    console.log("Using LocalStorage.");
-
-    return getAppointments();
-  }
-}
-
-/* =====================================
-   Get Appointment By Id
-===================================== */
-
-export async function getAppointmentById(id) {
-  try {
-    const { data } = await api.get(
-      `/appointments/${id}`
-    );
-
-    return data;
-  } catch (error) {
-    return getAppointments().find(
-      (appointment) =>
-        Number(appointment.id) === Number(id)
-    );
-  }
-}
-
-/* =====================================
-   Accept Appointment
-===================================== */
-
-export async function acceptAppointment(id) {
-  try {
-    const { data } = await api.put(
-      `/appointments/${id}/accept`
-    );
-
-    return data;
-  } catch (error) {
-    const appointments = getAppointments();
-
-    const updated = appointments.map(
-      (appointment) =>
-        appointment.id === id
-          ? {
-              ...appointment,
-              status: "ACCEPTED",
-            }
-          : appointment
-    );
-
-    saveAppointments(updated);
-
-    return updated.find(
-      (appointment) => appointment.id === id
-    );
-  }
-}
-
-/* =====================================
-   Decline Appointment
-===================================== */
-
-export async function declineAppointment(
-  id,
+export const declineAppointment = async (
+  appointmentId,
   reason = ""
-) {
-  try {
-    const { data } = await api.put(
-      `/appointments/${id}/decline`,
-      {
-        reason,
-      }
-    );
+) => {
+  const response = await api.put(
+    `/appointments/${appointmentId}/decline`,
+    { reason }
+  );
+  return adaptAppointment(response.data);
+};
 
-    return data;
-  } catch (error) {
-    const appointments = getAppointments();
+/**
+ * ==========================================
+ * Update Appointment
+ * PUT /appointments/{appointment_id}
+ * ==========================================
+ */
+export const updateAppointment = async (
+  appointmentId,
+  appointmentData
+) => {
+  const response = await api.put(
+    `/appointments/${appointmentId}`,
+    appointmentData
+  );
 
-    const updated = appointments.map(
-      (appointment) =>
-        appointment.id === id
-          ? {
-              ...appointment,
-              status: "DECLINED",
-              declineReason: reason,
-            }
-          : appointment
-    );
+  return adaptAppointment(response.data);
+};
 
-    saveAppointments(updated);
+/**
+ * ==========================================
+ * Cancel Appointment
+ * PATCH /appointments/{appointment_id}/cancel
+ * ==========================================
+ */
+export const cancelAppointment = async (appointmentId) => {
+  const response = await api.patch(
+    `/appointments/${appointmentId}/cancel`
+  );
 
-    return updated.find(
-      (appointment) => appointment.id === id
-    );
-  }
-}
+  return response.data;
+};
 
-/* =====================================
-   Complete Appointment
-===================================== */
+/**
+ * ==========================================
+ * Delete Appointment
+ * DELETE /appointments/{appointment_id}
+ * ==========================================
+ */
+export const deleteAppointment = async (appointmentId) => {
+  const response = await api.delete(
+    `/appointments/${appointmentId}`
+  );
 
-export async function completeAppointment(id) {
-  try {
-    const { data } = await api.put(
-      `/appointments/${id}/complete`
-    );
-
-    return data;
-  } catch (error) {
-    const appointments = getAppointments();
-
-    const updated = appointments.map(
-      (appointment) =>
-        appointment.id === id
-          ? {
-              ...appointment,
-              status: "COMPLETED",
-            }
-          : appointment
-    );
-
-    saveAppointments(updated);
-
-    return updated.find(
-      (appointment) => appointment.id === id
-    );
-  }
-}
-
-/* =====================================
-   Cancel Appointment
-===================================== */
-
-export async function cancelAppointment(id) {
-  try {
-    const { data } = await api.put(
-      `/appointments/${id}/cancel`
-    );
-
-    return data;
-  } catch (error) {
-    const appointments = getAppointments();
-
-    const updated = appointments.map(
-      (appointment) =>
-        appointment.id === id
-          ? {
-              ...appointment,
-              status: "CANCELLED",
-            }
-          : appointment
-    );
-
-    saveAppointments(updated);
-
-    return updated.find(
-      (appointment) => appointment.id === id
-    );
-  }
-}
-
-/* =====================================
-   Delete Appointment
-===================================== */
-
-export async function deleteAppointment(id) {
-  try {
-    const { data } = await api.delete(
-      `/appointments/${id}`
-    );
-
-    return data;
-  } catch (error) {
-    const appointments = getAppointments();
-
-    const updated = appointments.filter(
-      (appointment) =>
-        appointment.id !== id
-    );
-
-    saveAppointments(updated);
-
-    return true;
-  }
-}
-
-/* =====================================
-   Appointment Statistics
-===================================== */
-
-export async function getAppointmentStats() {
-  const appointments =
-    await getAllAppointments();
-
-  return {
-    total: appointments.length,
-
-    pending: appointments.filter(
-      (appointment) =>
-        appointment.status === "PENDING"
-    ).length,
-
-    accepted: appointments.filter(
-      (appointment) =>
-        appointment.status === "ACCEPTED"
-    ).length,
-
-    declined: appointments.filter(
-      (appointment) =>
-        appointment.status === "DECLINED"
-    ).length,
-
-    completed: appointments.filter(
-      (appointment) =>
-        appointment.status === "COMPLETED"
-    ).length,
-
-    cancelled: appointments.filter(
-      (appointment) =>
-        appointment.status === "CANCELLED"
-    ).length,
-  };
-}
+  return response.data;
+};

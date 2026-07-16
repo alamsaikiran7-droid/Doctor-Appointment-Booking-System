@@ -3,107 +3,126 @@ import os
 import sys
 from pathlib import Path
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 
-from alembic import context
+# =====================================
+# Project Path
+# =====================================
+project_root = Path(__file__).resolve().parents[1]
+
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+
+# =====================================
+# Application Imports
+# =====================================
 from app.database import Base
 from app.models.user import User
 from app.models.doctor import Doctor
 from app.models.slot import Slot
 from app.models.appointment import Appointment
+from app.models.payment import Payment
 
-# ensure project root is on sys.path so `app` imports work
-project_root = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(project_root))
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# =====================================
+# Alembic Configuration
+# =====================================
 config = context.config
 
-# override sqlalchemy.url from app settings if available
+
+# =====================================
+# Database URL
+# =====================================
 try:
-    # ensure the working directory is the project root so BaseSettings reads backend/.env
     os.chdir(str(project_root))
+
     from app.config import settings
+
     if settings.DATABASE_URL:
-        config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-except Exception:
-    pass
+        config.set_main_option(
+            "sqlalchemy.url",
+            settings.DATABASE_URL,
+        )
+except Exception as exc:
+    sys.stderr.write(
+        f"Failed loading DATABASE_URL from settings: {exc}\n"
+    )
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+
+# =====================================
+# Logging Configuration
+# =====================================
 if config.config_file_name is not None:
-    cfg_path = Path(config.config_file_name)
-    if not cfg_path.is_absolute():
-        # resolve relative paths against repository root (parent of backend)
-        cfg_path = (project_root / cfg_path).resolve()
-    if cfg_path.exists():
-        fileConfig(str(cfg_path))
+    config_file_path = Path(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support - import Base from the app package
-try:
-    from app.database import Base
-    target_metadata = Base.metadata
-except Exception as e:
-    import sys
-    sys.stderr.write(f"Failed importing Base for target_metadata: {e}\n")
-    target_metadata = Base.metadata
+    if not config_file_path.is_absolute():
+        config_file_path = (
+            project_root / config_file_path
+        ).resolve()
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+    if config_file_path.exists():
+        fileConfig(str(config_file_path))
 
 
+# =====================================
+# SQLAlchemy Metadata
+# =====================================
+target_metadata = Base.metadata
+
+
+# =====================================
+# Offline Migration
+# =====================================
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
-    """
     url = config.get_main_option("sqlalchemy.url")
+
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
+        dialect_opts={
+            "paramstyle": "named",
+        },
+        compare_type=True,
+        compare_server_default=True,
     )
 
     with context.begin_transaction():
         context.run_migrations()
 
 
+# =====================================
+# Online Migration
+# =====================================
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(
+            config.config_ini_section,
+            {},
+        ),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
+            compare_server_default=True,
         )
 
         with context.begin_transaction():
             context.run_migrations()
 
 
+# =====================================
+# Run Migration
+# =====================================
 if context.is_offline_mode():
     run_migrations_offline()
 else:

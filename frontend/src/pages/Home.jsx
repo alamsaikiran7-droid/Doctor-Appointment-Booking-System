@@ -15,18 +15,22 @@ function Home() {
       {/* Hero */}
       <section className="relative overflow-hidden bg-grain-dot">
         <div className="container-nc pt-16 pb-20 md:pt-20 md:pb-28 grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
-          <div className="animate-fade-up">
+          <div className="animate-fade-up max-w-xl">
             <p className="eyebrow mb-5">NovaCare Hospitals · Hyderabad</p>
-            <h1 className="text-[2.6rem] sm:text-5xl lg:text-[3.4rem] leading-[1.08] text-balance">
-              Care that fits <span className="italic text-primary">your</span> schedule,
+            <h1 className="text-[2.9rem] sm:text-[3.8rem] lg:text-[4.4rem] leading-[1.02] tracking-[-0.03em] text-balance">
+              Care that fits <span className="italic text-primary">your</span>{" "}
+              schedule,
+              <br />
               not the hospital's.
             </h1>
-            <p className="text-[15px] text-ink-soft leading-relaxed mt-6 max-w-lg">
-              Search verified specialists, compare fees and reviews, and confirm a
-              slot in under a minute — then walk in with zero paperwork waiting for you.
+            <p className="mt-7 max-w-xl text-[17px] leading-8 text-ink-soft">
+              Search verified specialists, compare consultation fees and
+              reviews, and book your appointment in under a minute. Skip the
+              waiting room paperwork and arrive knowing everything is already
+              prepared.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 mt-8">
+            <div className="mt-10 flex flex-wrap items-center gap-4">
               <Link to="/doctors" className="btn-primary">
                 Book Appointment <FiArrowRight size={15} />
               </Link>
@@ -36,7 +40,11 @@ function Home() {
             </div>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-8 text-sm text-ink-soft">
-              {["No queue booking", "Verified specialists", "Digital records"].map((t) => (
+              {[
+                "No queue booking",
+                "Verified specialists",
+                "Digital records",
+              ].map((t) => (
                 <span key={t} className="flex items-center gap-1.5">
                   <FiCheckCircle className="text-primary" size={15} /> {t}
                 </span>
@@ -46,22 +54,30 @@ function Home() {
 
           <div className="relative flex justify-center lg:justify-end">
             <div className="relative w-full max-w-md">
-              <div className="rounded-[2rem] overflow-hidden shadow-card aspect-[4/5]">
+              {/* Decorative background */}
+              <div className="absolute -inset-5 rounded-[2.5rem] bg-primary/10 blur-2xl" />
+
+              {/* Doctor image */}
+              <div className="group relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/70 bg-white shadow-2xl">
                 <img
                   src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=800&auto=format&fit=crop"
                   alt="NovaCare physician consulting a patient"
-                  className="w-full h-full object-cover"
+                  className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-[1.04]"
                 />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-ink/20 via-transparent to-white/10" />
               </div>
-              <div className="absolute -bottom-10 -left-10 hidden sm:block">
+
+              {/* Booking widget */}
+              <div className="absolute -bottom-10 -left-10 z-10 hidden transition duration-300 hover:-translate-y-1 sm:block">
                 <BookingWidget />
               </div>
             </div>
           </div>
         </div>
 
-        <div className="container-nc pb-16 lg:pb-20">
-          <div className="card px-6 py-6 md:px-10">
+        <div className="container-nc -mt-8 pb-16 lg:-mt-12 lg:pb-20 relative z-20">
+          <div className="card rounded-3xl border border-white/70 bg-white/90 px-6 py-7 shadow-xl backdrop-blur md:px-10">
             <StatBar />
           </div>
         </div>
@@ -120,14 +136,41 @@ function Home() {
           />
           <div className="grid md:grid-cols-3 gap-5 mt-10">
             {[
-              { title: "24/7 Emergency & Trauma", img: "https://images.unsplash.com/photo-1587351021355-a479a299d2f9?q=80&w=700&auto=format&fit=crop" },
-              { title: "Intensive Care Unit", img: "https://images.unsplash.com/photo-1583912267550-d6c2ac3196c0?q=80&w=700&auto=format&fit=crop" },
-              { title: "Diagnostics & Laboratory", img: "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=700&auto=format&fit=crop" },
+              {
+                title: "24/7 Emergency & Trauma",
+                img: "https://images.unsplash.com/photo-1587351021355-a479a299d2f9?q=80&w=700&auto=format&fit=crop",
+              },
+              {
+                title: "Intensive Care Unit",
+                img: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=700&auto=format&fit=crop",
+              },
+              {
+                title: "Diagnostics & Laboratory",
+                img: "https://images.unsplash.com/photo-1579154204601-01588f351e67?q=80&w=700&auto=format&fit=crop",
+              },
             ].map(({ title, img }) => (
-              <div key={title} className="group rounded-2xl overflow-hidden relative aspect-[4/3]">
-                <img src={img} alt={title} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/10 to-transparent" />
-                <p className="absolute bottom-4 left-4 right-4 text-white font-semibold">{title}</p>
+              <div
+                key={title}
+                className="group relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 shadow-lg transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl"
+              >
+                <img
+                  src={img}
+                  alt={title}
+                  className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+
+                <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <p className="text-lg font-semibold text-white transition duration-300 group-hover:-translate-y-1">
+                    {title}
+                  </p>
+
+                  <p className="mt-2 text-sm text-white/80 opacity-0 transition duration-300 group-hover:opacity-100">
+                    World-class facilities with experienced medical
+                    professionals.
+                  </p>
+                </div>
               </div>
             ))}
           </div>

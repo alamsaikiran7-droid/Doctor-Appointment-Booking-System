@@ -1,51 +1,83 @@
 import { Link } from "react-router-dom";
-import { FiStar, FiMapPin, FiArrowUpRight } from "react-icons/fi";
+import { FiArrowUpRight, FiBriefcase, FiMapPin, FiStar } from "react-icons/fi";
 
-function initials(name) {
+function initials(name = "") {
   return name
-    .replace("Dr. ", "")
+    .replace(/^Dr\.\s*/i, "")
     .split(" ")
-    .map((n) => n[0])
+    .filter(Boolean)
+    .map((part) => part[0])
     .slice(0, 2)
-    .join("");
+    .join("")
+    .toUpperCase();
 }
 
 function DoctorCard({ doctor }) {
+  const rating = Number(doctor.rating || 0);
+  const hasRating = rating > 0;
+
   return (
-    <div className="card p-5 hover:shadow-card hover:-translate-y-1 transition-all duration-300 group">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-primary-light text-primary font-display italic text-xl grid place-items-center shrink-0">
+    <div className="card group flex h-full flex-col p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-card">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border border-emerald-100 bg-primary-light font-display text-xl font-semibold italic text-primary">
             {initials(doctor.name)}
           </div>
-          <div>
-            <h3 className="font-sans font-semibold text-ink text-base leading-tight">
+
+          <div className="min-w-0">
+            <h3 className="truncate text-lg font-semibold text-ink">
               {doctor.name}
             </h3>
-            <p className="text-sm text-primary font-medium mt-0.5">{doctor.specialization}</p>
+
+            <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              {doctor.specialization || "General Physician"}
+            </span>
           </div>
         </div>
-        <span className="flex items-center gap-1 text-xs font-semibold text-gold bg-gold-light px-2.5 py-1 rounded-full shrink-0">
-          <FiStar size={11} className="fill-gold" /> {doctor.rating}
-        </span>
+
+        {hasRating && (
+          <span className="flex shrink-0 items-center gap-1 rounded-full bg-gold-light px-2.5 py-1 text-xs font-semibold text-gold">
+            <FiStar size={11} className="fill-gold" />
+            {rating}
+          </span>
+        )}
       </div>
 
-      <div className="flex items-center gap-1.5 text-xs text-muted mt-4">
-        <FiMapPin size={12} />
-        {doctor.clinic}, {doctor.city}
-      </div>
+      <div className="mt-5 space-y-3 text-sm text-muted">
+        <div className="flex items-start gap-2">
+          <FiMapPin size={15} className="mt-0.5 shrink-0 text-primary" />
 
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-line">
-        <div className="text-sm">
-          <span className="font-mono font-semibold text-ink">₹{doctor.fee}</span>
-          <span className="text-muted text-xs"> / visit</span>
-          <p className="text-xs text-muted mt-0.5">{doctor.experience}+ yrs experience</p>
+          <span>
+            {doctor.clinic || "NovaCare Clinic"}
+            {doctor.city ? `, ${doctor.city}` : ""}
+          </span>
         </div>
+
+        <div className="flex items-center gap-2">
+          <FiBriefcase size={15} className="shrink-0 text-primary" />
+
+          <span>{doctor.experience || 0}+ years of experience</span>
+        </div>
+      </div>
+
+      <div className="mt-auto flex items-end justify-between border-t border-line pt-5">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted">
+            Consultation Fee
+          </p>
+
+          <p className="mt-1 text-lg font-semibold text-ink">
+            ₹{doctor.fee || 0}
+            <span className="ml-1 text-xs font-normal text-muted">/ visit</span>
+          </p>
+        </div>
+
         <Link
           to={`/doctors/${doctor.id}`}
-          className="w-10 h-10 rounded-full bg-primary-light text-primary grid place-items-center group-hover:bg-primary group-hover:text-white transition"
+          className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:shadow-md"
         >
-          <FiArrowUpRight size={16} />
+          View Profile
+          <FiArrowUpRight size={15} />
         </Link>
       </div>
     </div>

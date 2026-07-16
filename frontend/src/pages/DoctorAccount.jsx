@@ -8,6 +8,11 @@ import {
   FiAward,
   FiDollarSign,
   FiEdit2,
+  FiStar,
+  FiCheckCircle,
+  FiBriefcase,
+  FiCalendar,
+  FiUsers,
 } from "react-icons/fi";
 import DashboardLayout from "../layouts/DashboardLayout";
 import useAuth from "../hooks/useAuth";
@@ -41,103 +46,168 @@ function DoctorAccount() {
 
       <div className="grid lg:grid-cols-[320px_1fr] gap-8">
         {/* LEFT CARD */}
-        <div className="card p-8 text-center">
-          <div className="w-28 h-28 rounded-full bg-primary-light mx-auto grid place-items-center">
-            <FiUser size={50} className="text-primary" />
+        <div className="card overflow-hidden">
+          <div className="h-24 bg-primary-light" />
+
+          <div className="-mt-14 px-8 pb-8 text-center">
+            <div className="mx-auto grid h-28 w-28 place-items-center rounded-full border-4 border-white bg-emerald-50 shadow-sm">
+              <FiUser size={48} className="text-primary" />
+            </div>
+
+            <h2 className="mt-5 text-2xl font-semibold text-ink">
+              Dr. {doctor.name}
+            </h2>
+
+            <p className="mt-1 text-primary">{doctor.speciality}</p>
+
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+              <span className="inline-flex items-center gap-1 rounded-full border border-yellow-200 bg-yellow-50 px-3 py-1 text-xs font-semibold text-yellow-700">
+                <FiStar size={13} />
+                4.8 Rating
+              </span>
+
+              <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <FiCheckCircle size={13} />
+                Active
+              </span>
+            </div>
+
+            <p className="mt-6 border-t border-line pt-6 text-sm leading-6 text-muted">
+              Manage your personal and professional profile information.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/doctor/profile/edit")}
+              className="btn-primary mt-6 flex w-full items-center justify-center gap-2"
+            >
+              <FiEdit2 size={16} />
+              Edit Profile
+            </button>
           </div>
-
-          <h2 className="text-2xl font-semibold mt-5">
-            Dr. {doctor.name}
-          </h2>
-
-          <p className="text-muted mt-2">{doctor.speciality}</p>
-
-         
         </div>
 
         {/* RIGHT CARD */}
         <div className="card p-8">
-          <h2 className="text-2xl font-semibold mb-6">
-            Personal Information
-          </h2>
+          <div className="mb-6">
+            <p className="eyebrow mb-2">Profile Details</p>
 
-          <div className="grid md:grid-cols-2 gap-6">
+            <h2 className="text-2xl font-semibold text-ink">
+              Personal Information
+            </h2>
+
+            <p className="mt-2 text-sm text-muted">
+              Review your contact and professional information.
+            </p>
+          </div>
+          
+
+          {/* Information Cards */}
+          <div className="grid gap-5 md:grid-cols-2">
             {/* Email */}
-            <div className="flex items-start gap-4">
-              <FiMail className="text-primary mt-1" size={20} />
-              <div>
-                <p className="text-sm text-muted">Email</p>
-                <h3 className="font-semibold">{doctor.email}</h3>
+            <div className="rounded-2xl border border-line bg-slate-50 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:shadow-md">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <FiMail size={20} />
               </div>
+
+              <p className="text-xs uppercase tracking-wider text-muted">
+                Email
+              </p>
+
+              <p
+                className="mt-1 truncate font-semibold text-ink"
+                title={doctor.email}
+              >
+                {doctor.email}
+              </p>
             </div>
 
             {/* Phone */}
-            <div className="flex items-start gap-4">
-              <FiPhone className="text-primary mt-1" size={20} />
-              <div>
-                <p className="text-sm text-muted">Phone Number</p>
-                <h3 className="font-semibold">{doctor.phone}</h3>
+            <div className="rounded-2xl border border-line bg-slate-50 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:shadow-md">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <FiPhone size={20} />
               </div>
+
+              <p className="text-xs uppercase tracking-wider text-muted">
+                Phone Number
+              </p>
+
+              <p className="mt-1 font-semibold text-ink">{doctor.phone}</p>
             </div>
 
             {/* City */}
-            <div className="flex items-start gap-4">
-              <FiMapPin className="text-primary mt-1" size={20} />
-              <div>
-                <p className="text-sm text-muted">City</p>
-                <h3 className="font-semibold">{doctor.city}</h3>
+            <div className="rounded-2xl border border-line bg-slate-50 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:shadow-md">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <FiMapPin size={20} />
               </div>
+
+              <p className="text-xs uppercase tracking-wider text-muted">
+                City
+              </p>
+
+              <p className="mt-1 font-semibold text-ink">{doctor.city}</p>
             </div>
 
             {/* Specialization */}
-            <div className="flex items-start gap-4">
-              <FiAward className="text-primary mt-1" size={20} />
-              <div>
-                <p className="text-sm text-muted">Specialization</p>
-                <h3 className="font-semibold">{doctor.speciality}</h3>
+            <div className="rounded-2xl border border-line bg-slate-50 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:shadow-md">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <FiAward size={20} />
               </div>
+
+              <p className="text-xs uppercase tracking-wider text-muted">
+                Specialization
+              </p>
+
+              <p className="mt-1 font-semibold text-ink">{doctor.speciality}</p>
             </div>
 
             {/* Experience */}
-            <div className="flex items-start gap-4">
-              <FiAward className="text-primary mt-1" size={20} />
-              <div>
-                <p className="text-sm text-muted">Experience</p>
-                <h3 className="font-semibold">{doctor.experience} Years</h3>
+            <div className="rounded-2xl border border-line bg-slate-50 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:shadow-md">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <FiBriefcase size={20} />
               </div>
+
+              <p className="text-xs uppercase tracking-wider text-muted">
+                Experience
+              </p>
+
+              <p className="mt-1 font-semibold text-ink">
+                {doctor.experience}{" "}
+                {Number(doctor.experience) === 1 ? "Year" : "Years"}
+              </p>
             </div>
 
             {/* Consultation Fee */}
-            <div className="flex items-start gap-4">
-              <FiDollarSign className="text-primary mt-1" size={20} />
-              <div>
-                <p className="text-sm text-muted">Consultation Fee</p>
-                <h3 className="font-semibold">
-                  ₹{doctor.consultation_fee}
-                </h3>
+            <div className="rounded-2xl border border-line bg-slate-50 p-5 transition-all duration-300 hover:border-primary/30 hover:bg-white hover:shadow-md">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <FiDollarSign size={20} />
               </div>
+
+              <p className="text-xs uppercase tracking-wider text-muted">
+                Consultation Fee
+              </p>
+
+              <p className="mt-1 font-semibold text-ink">
+                ₹{doctor.consultation_fee}
+              </p>
             </div>
           </div>
 
-          {/* Bio */}
-          <div className="mt-8 border-t border-line pt-6">
-            <h2 className="text-xl font-semibold mb-4">About Doctor</h2>
-            <p className="text-muted leading-7">{doctor.bio}</p>
+          {/* About Doctor */}
+          <div className="mt-8 rounded-2xl border border-line bg-slate-50 p-6">
+            <h2 className="text-xl font-semibold text-ink">About Doctor</h2>
+
+            <p className="mt-3 leading-7 text-muted">{doctor.bio}</p>
           </div>
 
-          {/* Future Buttons */}
-          <div className="flex flex-wrap gap-4 mt-8">
+          {/* Buttons */}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            
             <button
-              className="btn-primary"
-              onClick={() => navigate("/doctor/profile/edit")}
-            >
-              Update Profile
-            </button>
-
-            <button
-              className="btn-outline"
+              type="button"
+              className="btn-outline flex items-center justify-center"
               onClick={() => navigate("/doctor/change-password")}
-            >             
+            >
               Change Password
             </button>
           </div>

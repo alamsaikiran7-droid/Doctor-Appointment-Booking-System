@@ -1,33 +1,33 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import Home from "../pages/Home";
 import About from "../pages/About";
-import Contact from "../pages/Contact";
-import Doctors from "../pages/Doctors";
-import DoctorProfile from "../pages/DoctorProfile";
+import AddDoctor from "../pages/AddDoctor";
+import AdminAppointments from "../pages/AdminAppointments";
+import AdminDashboard from "../pages/AdminDashboard";
+import AdminDoctorDetails from "../pages/AdminDoctorDetails";
+import AdminDoctors from "../pages/AdminDoctors";
+import AdminPatients from "../pages/AdminPatients";
+import AdminReports from "../pages/AdminReports";
 import Booking from "../pages/Booking";
-import MyAppointments from "../pages/MyAppointments";
-
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-
-import PatientDashboard from "../pages/PatientDashboard";
-import DoctorDashboard from "../pages/DoctorDashboard";
+import ChangeDoctorPassword from "../pages/ChangeDoctorPassword";
+import Contact from "../pages/Contact";
+import DoctorAccount from "../pages/DoctorAccount";
 import DoctorAppointments from "../pages/DoctorAppointments";
 import DoctorAvailability from "../pages/DoctorAvailability";
-import DoctorAccount from "../pages/DoctorAccount";
-import AdminDashboard from "../pages/AdminDashboard";
-import AdminDoctors from "../pages/AdminDoctors";
-import AddDoctor from "../pages/AddDoctor";
-import AdminPatients from "../pages/AdminPatients";
-import AdminAppointments from "../pages/AdminAppointments";
-import AdminReports from "../pages/AdminReports";
-import ForgotPassword from "../pages/ForgotPassword";
-import AdminDoctorDetails from "../pages/AdminDoctorDetails";
+import DoctorDashboard from "../pages/DoctorDashboard";
+import DoctorProfile from "../pages/DoctorProfile";
+import Doctors from "../pages/Doctors";
 import EditDoctorProfile from "../pages/EditDoctorProfile";
-import ChangeDoctorPassword from "../pages/ChangeDoctorPassword";
-
+import ForgotPassword from "../pages/ForgotPassword";
+import Home from "../pages/Home";
+import Login from "../pages/Login";
+import MyAppointments from "../pages/MyAppointments";
 import NotFound from "../pages/NotFound";
+import PatientDashboard from "../pages/PatientDashboard";
+import PatientProfile from "../pages/PatientProfile";
+import Payment from "../pages/Payment";
+import Register from "../pages/Register";
+import AdminEditDoctor from "../pages/AdminEditDoctor";
 
 function AppRoutes() {
   return (
@@ -40,6 +40,7 @@ function AppRoutes() {
         <Route path="/doctors" element={<Doctors />} />
         <Route path="/doctors/:id" element={<DoctorProfile />} />
         <Route path="/booking/:id" element={<Booking />} />
+        <Route path="/payment/:appointmentId" element={<Payment />} />
         <Route path="/my-appointments" element={<MyAppointments />} />
 
         {/* Dynamic Auth */}
@@ -48,20 +49,27 @@ function AppRoutes() {
 
         {/* Dashboards */}
         <Route path="/patient/dashboard" element={<PatientDashboard />} />
+        <Route path="/patient/profile" element={<PatientProfile />} />
         <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
         <Route path="/doctor/appointments" element={<DoctorAppointments />} />
         <Route path="/doctor/availability" element={<DoctorAvailability />} />
         <Route path="/doctor/profile" element={<DoctorAccount />} />
+        <Route path="/doctor/profile/edit" element={<EditDoctorProfile />} />
+        <Route
+          path="/doctor/change-password"
+          element={<ChangeDoctorPassword />}
+        />
+
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/doctors/add" element={<AddDoctor />}/>
+        <Route path="/admin/doctors/add" element={<AddDoctor />} />
         <Route path="/admin/doctors" element={<AdminDoctors />} />
+        <Route path="/admin/doctors/:id" element={<AdminDoctorDetails />} />
+        <Route path="/admin/doctors/:id/edit" element={<AdminEditDoctor />} />
         <Route path="/admin/patients" element={<AdminPatients />} />
         <Route path="/admin/appointments" element={<AdminAppointments />} />
         <Route path="/admin/reports" element={<AdminReports />} />
+
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/admin/doctors/:id" element={<AdminDoctorDetails />}/>
-        <Route path="/doctor/profile/edit" element={<EditDoctorProfile />}/>
-        <Route path="/doctor/change-password" element={<ChangeDoctorPassword />}/>
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

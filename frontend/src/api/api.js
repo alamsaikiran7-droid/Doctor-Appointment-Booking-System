@@ -1,25 +1,15 @@
 import axios from "axios";
 
-// =======================================
-// Axios Instance
-// =======================================
-
 const api = axios.create({
-  baseURL: "http://127.0.0.1:8000",
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
-// =======================================
-// Request Interceptor
-// =======================================
-
+// Automatically attach JWT token
 api.interceptors.request.use(
   (config) => {
     const token =
-      localStorage.getItem("access_token") ||
-      localStorage.getItem("token");
+      localStorage.getItem("userToken") ||
+      localStorage.getItem("adminToken");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -30,10 +20,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// =======================================
-// Response Interceptor
-// =======================================
-
+// Optional: Log API errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {

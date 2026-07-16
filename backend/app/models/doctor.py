@@ -9,24 +9,46 @@ class Doctor(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
+    # Basic Details
     name = Column(String(100), nullable=False)
 
     email = Column(String(100), unique=True, nullable=False, index=True)
 
-    phone = Column(String(15), unique=True, nullable=False)
+    # Login Credentials
+    password = Column(String(255), nullable=False)
 
-    speciality = Column(String(100), nullable=False, index=True)
+    is_first_login = Column(Boolean, default=True, nullable=False)
 
-    city = Column(String(100), nullable=False, index=True)
+    # Contact Details
+    phone = Column(String(20), unique=True, nullable=False)
 
-    experience_years = Column(Integer, nullable=False)
+    # Professional Details
+    specialization = Column(String(100), nullable=False, index=True)
 
-    consultation_fee = Column(Float, nullable=False)
+    city = Column(String(100), nullable=False)
 
-    bio = Column(Text, nullable=True)
+    clinic = Column(String(150), nullable=False)
+
+    experience = Column(Integer, nullable=False)
+
+    fee = Column(Float, nullable=False)
+
+    gender = Column(String(20), nullable=False)
+
+    languages = Column(String(255), nullable=True)
+
+    about = Column(Text, nullable=True)
+
+    education = Column(String(255), nullable=True)
+
+    # Statistics
+    rating = Column(Float, default=0.0)
+
+    reviews = Column(Integer, default=0)
 
     is_active = Column(Boolean, default=True, nullable=False)
 
+    # Relationships
     slots = relationship(
         "Slot",
         back_populates="doctor",

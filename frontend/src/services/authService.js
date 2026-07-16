@@ -1,172 +1,131 @@
-import api from "./api";
-import { setUser } from "../utils/storage";
-import { adaptUser, adaptUserForBackend } from "./adapters";
-import { doctors } from "../data/doctors";
+import api from "../api/api";
 
-// ======================================
-// Login
-// ======================================
-
-export async function login({ role, username, password }) {
-  try {
-    const { data } = await api.post("/auth/login", {
-      role,
-      username,
-      password,
-    });
-
-    localStorage.setItem("novacare_token", data.token);
-
-    const user = adaptUser(data.user || data);
-
-    setUser(user);
-
-    return user;
-
-  } catch (err) {
-    let mockUser;
-
-    // ==============================
-    // Mock Doctor Login
-    // ==============================
-    if (role === "doctor") {
-
-      const doctor =
-        doctors.find(
-          (d) =>
-            d.name
-              .toLowerCase()
-              .includes((username || "").toLowerCase())
-        ) || doctors[0];
-
-      mockUser = {
-        id: doctor.id,
-        name: doctor.name,
-        username,
-        role: "doctor",
-        specialization: doctor.specialization,
-        city: doctor.city,
-        clinic: doctor.clinic,
-        fee: doctor.fee,
-      };
-
-    }
-    // ==============================
-    // Mock Patient Login
-    // ==============================
-    else if (role === "patient") {
-
-      mockUser = {
-        id: 1001,
-        name: username || "Patient",
-        username,
-        role: "patient",
-      };
-
-    }
-    // ==============================
-    // Mock Admin Login
-    // ==============================
-    else {
-
-      mockUser = {
-        id: 999,
-        name: username || "Admin",
-        username,
-        role: "admin",
-      };
-
-    }
-
-    localStorage.setItem("novacare_token", "mock-token");
-
-    setUser(mockUser);
-
-    return mockUser;
-  }
-}
-
-// ======================================
-// Register
-// ======================================
-
-export async function register({ role, ...formData }) {
-  try {
-    const payload = {
-      role,
-      ...adaptUserForBackend(formData),
-    };
-
-    const { data } = await api.post(
-      "/auth/register",
-      payload
-    );
-
-    return data.user
-      ? adaptUser(data.user)
-      : data;
-
-  } catch (err) {
-    return {
-      success: true,
-      mock: true,
-      role,
-      ...formData,
-    };
-  }
-}
-
-// ======================================
-// Logout
-// ======================================
-
-export function logout() {
-  localStorage.removeItem("novacare_token");
-  localStorage.removeItem("novacare_user");
-}
-
-
-export function changeDoctorPassword(currentPassword, newPassword) {
-  const user = JSON.parse(localStorage.getItem("novacare_user"));
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const users = JSON.parse(localStorage.getItem("novacare_users")) || [];
-
-  const index = users.findIndex(
-    (u) =>
-      u.username === user.username &&
-      u.role === "doctor"
-  );
-
-  if (index === -1) {
-    throw new Error("Doctor not found");
-  }
-
-  if (users[index].password !== currentPassword) {
-    throw new Error("Current password is incorrect");
-  }
-
-  // Update password in users list
-  users[index].password = newPassword;
-
-  localStorage.setItem(
-    "novacare_users",
-    JSON.stringify(users)
-  );
-
-  // Update logged-in user
-  const updatedUser = {
-    ...user,
-    password: newPassword,
+/* ==========================================
+   Register User
+========================================== */
+export const register = async (userData) => {
+  const payload = {
+    full_name: userData.name,
+    email: userData.email,
+    phone: userData.phone,
+    password: userData.password,
+    role: userData.role,
   };
 
-  localStorage.setItem(
-    "novacare_user",
-    JSON.stringify(updatedUser)
+  const { data } = await api.post(
+    "/auth/register",
+    payload,
   );
 
-  return true;
-}
+  return data;
+};
+/* ==========================================
+   Login User
+========================================== */
+export const login = async ({ role, username, password }) => {
+  // Username field is treated as email
+  const payload = {
+    email: username,
+    password,
+  };
+
+  let response;
+
+  switch (role) {
+    case "admin":
+      response = await api.post("/admin/login", payload);
+      break;
+
+    case "doctor":
+      response = await api.post("/doctor/login", payload);
+      break;
+
+    default:
+      // Patient login
+      response = await api.post("/auth/login", payload);
+      break;
+  }
+
+  // Save JWT token
+  localStorage.setItem("userToken", response.data.access_token);
+
+  return response.data;
+};
+
+/* ==========================================
+   Current User Profile (Patient/Admin)
+========================================== */
+export const getUserProfile = async () => {
+  const token = localStorage.getItem("userToken");
+
+  const { data } = await api.get("/auth/profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+};
+
+/* ==========================================
+   Get All Registered Patients (Admin)
+========================================== */
+export const getAllPatients = async () => {
+  const token = localStorage.getItem("userToken");
+
+  if (!token) {
+    throw new Error("Authentication required.");
+  }
+
+  const { data } = await api.get("/auth/patients", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+};
+/* ==========================================
+   Change Doctor Password
+========================================== */
+export const changeDoctorPassword = async (
+  currentPassword,
+  newPassword
+) => {
+  const token = localStorage.getItem("userToken");
+
+  if (!token) {
+    throw new Error("Authentication required.");
+  }
+
+  const payload = {
+    current_password: currentPassword,
+    new_password: newPassword,
+  };
+
+  const { data } = await api.post(
+    "/doctor/change-password",
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return data;
+};
+
+/* ==========================================
+   Logout
+========================================== */
+export const logout = () => {
+  localStorage.removeItem("userToken");
+};
+
+/* ==========================================
+   Helper
+========================================== */
+export const isLoggedIn = () => {
+  return !!localStorage.getItem("userToken");
+};

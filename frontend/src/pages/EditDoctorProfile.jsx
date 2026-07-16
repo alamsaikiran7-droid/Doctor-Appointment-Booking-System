@@ -16,7 +16,9 @@ function EditDoctorProfile() {
 
   async function loadDoctor() {
     const doctors = await getDoctors();
-    const currentDoctor = doctors.find((d) => Number(d.id) === Number(user?.id));
+    const currentDoctor = doctors.find(
+      (d) => Number(d.id) === Number(user?.id),
+    );
 
     if (!currentDoctor) {
       alert("Doctor not found.");
@@ -68,20 +70,40 @@ function EditDoctorProfile() {
 
   return (
     <DashboardLayout role="doctor">
-      <div className="max-w-5xl mx-auto">
+      <div className="mx-auto max-w-6xl">
+        {/* Page Header */}
+        <div className="mb-8">
+          <p className="eyebrow mb-2">Doctor Profile</p>
+
+          <h1 className="text-4xl font-semibold text-ink">Edit Profile</h1>
+
+          <p className="mt-2 text-muted">
+            Update your personal and professional information.
+          </p>
+        </div>
+
+        {/* Back Button */}
         <button
+          type="button"
           onClick={() => navigate("/doctor/profile")}
-          className="flex items-center gap-2 text-primary mb-6"
+          className="mb-6 inline-flex items-center gap-2 text-primary transition-all duration-300 hover:gap-3"
         >
-          <FiArrowLeft />
+          <FiArrowLeft size={17} />
           Back to Profile
         </button>
 
+        {/* Form Card */}
         <div className="card p-8">
-          <h1 className="text-3xl font-bold mb-2">Edit Doctor Profile</h1>
-          <p className="text-muted mb-8">Update your profile information.</p>
+          <form onSubmit={handleSubmit} className="grid gap-6 md:grid-cols-2">
+            <div className="md:col-span-2 mt-2">
+              <h2 className="text-xl font-semibold text-ink">
+                Personal Information
+              </h2>
 
-          <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
+              <p className="mt-1 text-sm text-muted">
+                Basic contact information.
+              </p>
+            </div>
             {/* Doctor Name */}
             <div>
               <label className="label">Doctor Name</label>
@@ -97,14 +119,19 @@ function EditDoctorProfile() {
             {/* Email */}
             <div>
               <label className="label">Email</label>
+
               <input
-                className="input"
                 type="email"
                 name="email"
                 value={doctor.email || ""}
-                onChange={handleChange}
-                required
+                className="input cursor-not-allowed bg-slate-100 text-slate-500"
+                disabled
+                readOnly
               />
+
+              <p className="mt-2 text-xs text-muted">
+                Email cannot be changed from your profile.
+              </p>
             </div>
 
             {/* Phone */}
@@ -137,6 +164,15 @@ function EditDoctorProfile() {
                 <option>Pune</option>
                 <option>Mumbai</option>
               </select>
+            </div>
+            <div className="md:col-span-2 mt-6 border-t border-line pt-6">
+              <h2 className="text-xl font-semibold text-ink">
+                Professional Information
+              </h2>
+
+              <p className="mt-1 text-sm text-muted">
+                Manage your practice details.
+              </p>
             </div>
 
             {/* Clinic */}
@@ -228,24 +264,30 @@ function EditDoctorProfile() {
                 onChange={handleChange}
               />
             </div>
+            <div className="md:col-span-2 mt-6 border-t border-line pt-6">
+              <h2 className="text-xl font-semibold text-ink">About</h2>
+            </div>
 
             {/* About */}
             <div className="md:col-span-2">
               <label className="label">About Doctor</label>
               <textarea
-                rows="4"
+                rows={5}
                 className="input resize-none"
                 name="about"
                 value={doctor.about || ""}
                 onChange={handleChange}
               />
             </div>
+            <div className="md:col-span-2 mt-6">
+              <h2 className="text-xl font-semibold text-ink">Education</h2>
+            </div>
 
             {/* Education */}
             <div className="md:col-span-2">
               <label className="label">Education</label>
               <textarea
-                rows="3"
+                rows={4}
                 className="input resize-none"
                 placeholder="MBBS, MD..."
                 name="education"
@@ -263,7 +305,10 @@ function EditDoctorProfile() {
               >
                 Cancel
               </button>
-              <button type="submit" className="btn-primary">
+              <button
+                type="submit"
+                className="btn-primary min-w-[190px] justify-center"
+              >
                 <FiSave size={18} />
                 Save Changes
               </button>

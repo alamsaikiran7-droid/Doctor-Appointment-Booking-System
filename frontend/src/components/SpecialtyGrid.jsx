@@ -1,6 +1,12 @@
 import { Link } from "react-router-dom";
 import {
-  FiHeart, FiActivity, FiUsers, FiSmile, FiSun, FiWind,
+  FiHeart,
+  FiActivity,
+  FiUsers,
+  FiSmile,
+  FiSun,
+  FiWind,
+  FiArrowRight,
 } from "react-icons/fi";
 
 const items = [
@@ -14,18 +20,33 @@ const items = [
 
 function SpecialtyGrid() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-6">
       {items.map(({ name, icon: Icon, desc }) => (
         <Link
           key={name}
           to={`/doctors?specialization=${encodeURIComponent(name)}`}
-          className="card p-5 text-center hover:border-primary hover:shadow-soft hover:-translate-y-1 transition-all duration-300 group"
+          className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-2 hover:border-primary/30 hover:shadow-2xl"
         >
-          <div className="w-12 h-12 mx-auto rounded-xl bg-primary-light text-primary grid place-items-center mb-3 group-hover:bg-primary group-hover:text-white transition">
-            <Icon size={20} />
+          {/* Background Glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+          {/* Icon */}
+          <div className="relative mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary group-hover:text-white">
+            <Icon size={24} />
           </div>
-          <p className="font-semibold text-ink text-sm">{name}</p>
-          <p className="text-xs text-muted mt-0.5">{desc}</p>
+
+          {/* Title */}
+          <h3 className="relative text-base font-semibold text-ink transition-colors duration-300 group-hover:text-primary">
+            {name}
+          </h3>
+
+          {/* Description */}
+          <p className="relative mt-2 text-xs leading-5 text-muted">{desc}</p>
+
+          {/* Arrow */}
+          <div className="relative mt-4 flex justify-center opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
+            <FiArrowRight size={16} className="text-primary" />
+          </div>
         </Link>
       ))}
     </div>

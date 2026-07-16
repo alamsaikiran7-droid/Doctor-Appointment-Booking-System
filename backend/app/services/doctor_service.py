@@ -1,24 +1,59 @@
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from app.models.doctor import Doctor
 from app.schemas.doctor_schema import DoctorCreate, DoctorUpdate
+from app.utils.password_hash import hash_password
 
 
-# ===========================
+# ==========================================
 # Create Doctor
-# ===========================
+# ==========================================
 def create_doctor(db: Session, doctor: DoctorCreate):
+
+    # Check duplicate email
+    existing_email = db.query(Doctor).filter(
+        Doctor.email == doctor.email
+    ).first()
+
+    if existing_email:
+        raise HTTPException(
+            status_code=400,
+            detail="Doctor with this email already exists."
+        )
+
+    # Check duplicate phone
+    existing_phone = db.query(Doctor).filter(
+        Doctor.phone == doctor.phone
+    ).first()
+
+    if existing_phone:
+        raise HTTPException(
+            status_code=400,
+            detail="Doctor with this phone number already exists."
+        )
 
     new_doctor = Doctor(
         name=doctor.name,
         email=doctor.email,
+        password=hash_password(doctor.password),
+
         phone=doctor.phone,
-        speciality=doctor.speciality,
+        specialization=doctor.specialization,
         city=doctor.city,
-        experience_years=doctor.experience_years,
-        consultation_fee=doctor.consultation_fee,
-        bio=doctor.bio
+        clinic=doctor.clinic,
+        experience=doctor.experience,
+        fee=doctor.fee,
+        gender=doctor.gender,
+        languages=doctor.languages,
+        about=doctor.about,
+        education=doctor.education,
+
+        rating=0,
+        reviews=0,
+        is_active=True,
+        is_first_login=True
     )
 
     db.add(new_doctor)
@@ -28,33 +63,30 @@ def create_doctor(db: Session, doctor: DoctorCreate):
     return new_doctor
 
 
-# ===========================
+# ==========================================
 # Get All Doctors
-# ===========================
+# ==========================================
 def get_all_doctors(db: Session):
-
     return db.query(Doctor).all()
 
 
-# ===========================
+# ==========================================
 # Get Doctor By ID
-# ===========================
+# ==========================================
 def get_doctor_by_id(db: Session, doctor_id: int):
-
     return db.query(Doctor).filter(
         Doctor.id == doctor_id
     ).first()
 
 
-# ===========================
+# ==========================================
 # Update Doctor
-# ===========================
+# ==========================================
 def update_doctor(
     db: Session,
     doctor_id: int,
     doctor_data: DoctorUpdate
 ):
-
     doctor = db.query(Doctor).filter(
         Doctor.id == doctor_id
     ).first()
@@ -73,9 +105,9 @@ def update_doctor(
     return doctor
 
 
-# ===========================
+# ==========================================
 # Delete Doctor
-# ===========================
+# ==========================================
 def delete_doctor(db: Session, doctor_id: int):
 
     doctor = db.query(Doctor).filter(
@@ -91,41 +123,32 @@ def delete_doctor(db: Session, doctor_id: int):
     return doctor
 
 
-# ===========================
-# Search By Speciality
-# ===========================
-def search_by_speciality(
-    db: Session,
-    speciality: str
-):
-
+# ==========================================
+# Search By Specialization
+# ==========================================
+def search_by_specialization(db: Session, specialization: str):
     return db.query(Doctor).filter(
-        Doctor.speciality.ilike(f"%{speciality}%")
+        Doctor.specialization.ilike(f"%{specialization}%")
     ).all()
 
 
-# ===========================
+# ==========================================
 # Search By City
-# ===========================
-def search_by_city(
-    db: Session,
-    city: str
-):
-
+# ==========================================
+def search_by_city(db: Session, city: str):
     return db.query(Doctor).filter(
         Doctor.city.ilike(f"%{city}%")
     ).all()
 
 
-# ===========================
-# Search By City & Speciality
-# ===========================
+# ==========================================
+# Search Doctors
+# ==========================================
 def search_doctors(
     db: Session,
     city: str = None,
-    speciality: str = None
+    specialization: str = None
 ):
-
     query = db.query(Doctor)
 
     if city:
@@ -133,39 +156,31 @@ def search_doctors(
             Doctor.city.ilike(f"%{city}%")
         )
 
-    if speciality:
+    if specialization:
         query = query.filter(
-            Doctor.speciality.ilike(f"%{speciality}%")
+            Doctor.specialization.ilike(f"%{specialization}%")
         )
 
     return query.all()
 
 
-# ===========================
+# ==========================================
 # Search By Name
-# ===========================
-def search_by_name(
-    db: Session,
-    name: str
-):
-
+# ==========================================
+def search_by_name(db: Session, name: str):
     return db.query(Doctor).filter(
         Doctor.name.ilike(f"%{name}%")
     ).all()
 
 
-# ===========================
+# ==========================================
 # Global Search
-# ===========================
-def global_search(
-    db: Session,
-    keyword: str
-):
-
+# ==========================================
+def global_search(db: Session, keyword: str):
     return db.query(Doctor).filter(
         or_(
             Doctor.name.ilike(f"%{keyword}%"),
-            Doctor.speciality.ilike(f"%{keyword}%"),
+            Doctor.specialization.ilike(f"%{keyword}%"),
             Doctor.city.ilike(f"%{keyword}%")
         )
     ).all()

@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import {
-  FiMenu,
-  FiX,
-  FiPlusCircle,
-  FiLogOut,
-  FiUser,
-} from "react-icons/fi";
+import { FiMenu, FiX, FiPlusCircle, FiLogOut, FiUser } from "react-icons/fi";
 
 import LoginRoleModal from "./LoginRoleModal";
 import useAuth from "../hooks/useAuth";
@@ -25,46 +19,40 @@ function Navbar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const dashboardPath = user
-    ? `/${user.role}/dashboard`
-    : "/";
+  const dashboardPath = user ? `/${user.role}/dashboard` : "/";
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-line">
-        <div className="container-nc flex items-center justify-between h-[76px]">
-
+      <header className="sticky top-0 z-50 border-b border-white/70 bg-white/85 shadow-sm backdrop-blur-xl">
+        <div className="container-nc flex h-[76px] items-center justify-between">
           {/* Logo */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 shrink-0"
+            className="group flex shrink-0 items-center gap-2.5 transition-all duration-300 hover:-translate-y-0.5"
           >
-            <span className="w-9 h-9 rounded-lg bg-primary grid place-items-center">
+            <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary shadow-sm transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:shadow-lg">
               <span className="text-white font-display italic text-lg leading-none">
                 N
               </span>
             </span>
 
-            <span className="font-display text-xl text-ink leading-none">
-              NovaCare{" "}
-              <span className="italic text-primary">
-                Hospitals
-              </span>
+            <span className="font-display text-xl leading-none text-ink transition-all duration-300 group-hover:text-primary">
+              NovaCare <span className="italic text-primary">Hospitals</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden items-center gap-2 lg:flex">
             {links.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.to === "/"}
                 className={({ isActive }) =>
-                  `px-4 py-2 rounded-full text-sm font-medium transition ${
+                  `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                     isActive
                       ? "text-primary bg-primary-light"
-                      : "text-ink-soft hover:text-primary hover:bg-primary-light/60"
+                      : "text-ink-soft hover:-translate-y-0.5 hover:text-primary hover:bg-primary-light/60"
                   }`
                 }
               >
@@ -75,21 +63,23 @@ function Navbar() {
 
           {/* Desktop Right */}
           <div className="hidden lg:flex items-center gap-3">
-
             {!user ? (
               <>
                 <button
+                  type="button"
                   onClick={() => setLoginOpen(true)}
-                  className="btn-ghost"
+                  className="group inline-flex h-11 items-center justify-center gap-2 rounded-full border border-slate-200 bg-transparent px-5 text-sm font-medium text-slate-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary hover:bg-primary-light/50 hover:text-primary hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
                 >
+                  <FiUser
+                    size={15}
+                    className="transition-transform duration-300 group-hover:scale-110"
+                  />
                   Login
                 </button>
 
                 <button
-                  onClick={() =>
-                    navigate("/register/patient")
-                  }
-                  className="btn-primary"
+                  onClick={() => navigate("/register/patient")}
+                  className="btn-outline transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
                 >
                   Register
                 </button>
@@ -97,9 +87,7 @@ function Navbar() {
             ) : (
               <>
                 <button
-                  onClick={() =>
-                    navigate(dashboardPath)
-                  }
+                  onClick={() => navigate(dashboardPath)}
                   className="flex items-center gap-2 text-sm font-semibold text-ink-soft hover:text-primary transition"
                 >
                   <span className="w-8 h-8 rounded-full bg-primary-light grid place-items-center text-primary">
@@ -111,11 +99,7 @@ function Navbar() {
 
                 <button
                   onClick={() => {
-                    if (
-                      window.confirm(
-                        "Are you sure you want to logout?"
-                      )
-                    ) {
+                    if (window.confirm("Are you sure you want to logout?")) {
                       logout();
                       navigate("/");
                     }
@@ -130,52 +114,49 @@ function Navbar() {
 
             <Link
               to="/doctors"
-              className="btn-accent"
+              className="group btn-accent inline-flex h-11 items-center justify-center gap-2 rounded-full px-5 transition-all duration-300 hover:-translate-y-0.5 hover:scale-[1.02] hover:shadow-xl active:translate-y-0 active:scale-[0.98]"
             >
-              <FiPlusCircle size={16} />
-              Book Now
+              <FiPlusCircle
+                size={16}
+                className="transition-transform duration-300 group-hover:scale-110"
+              />
+              Book Appointment
             </Link>
-
           </div>
 
           {/* Mobile Menu Button */}
           <button
             className="lg:hidden w-10 h-10 grid place-items-center rounded-full hover:bg-primary-light text-ink"
-            onClick={() =>
-              setMobileOpen(!mobileOpen)
-            }
+            onClick={() => setMobileOpen(!mobileOpen)}
           >
-            {mobileOpen ? (
-              <FiX size={22} />
-            ) : (
-              <FiMenu size={22} />
-            )}
+            {mobileOpen ? <FiX size={22} /> : <FiMenu size={22} />}
           </button>
-
         </div>
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="lg:hidden border-t border-line bg-white px-5 pb-6 pt-2 animate-fade-up">
-
-            <nav className="flex flex-col">
+          <div className="animate-fade-up border-t border-line bg-white/95 px-5 pb-6 pt-3 shadow-lg backdrop-blur-xl lg:hidden">
+            <nav className="flex flex-col gap-1">
               {links.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
                   end={link.to === "/"}
-                  onClick={() =>
-                    setMobileOpen(false)
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                      isActive
+                        ? "text-primary bg-primary-light"
+                        : "text-ink-soft hover:-translate-y-0.5 hover:text-primary hover:bg-primary-light/60"
+                    }`
                   }
-                  className="py-3 border-b border-line text-ink-soft text-sm font-medium"
                 >
                   {link.label}
                 </NavLink>
               ))}
             </nav>
 
-            <div className="flex flex-col gap-3 mt-4">
-
+            <div className="mt-5 flex flex-col gap-3 border-t border-line pt-5">
               {!user ? (
                 <>
                   <button
@@ -183,8 +164,12 @@ function Navbar() {
                       setMobileOpen(false);
                       setLoginOpen(true);
                     }}
-                    className="btn-outline w-full"
+                    className="group btn-outline inline-flex w-full items-center justify-center gap-2 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
                   >
+                    <FiUser
+                      size={15}
+                      className="transition-transform duration-300 group-hover:scale-110"
+                    />
                     Login
                   </button>
 
@@ -212,11 +197,7 @@ function Navbar() {
 
                   <button
                     onClick={() => {
-                      if (
-                        window.confirm(
-                          "Are you sure you want to logout?"
-                        )
-                      ) {
+                      if (window.confirm("Are you sure you want to logout?")) {
                         logout();
                         setMobileOpen(false);
                         navigate("/");
@@ -228,19 +209,13 @@ function Navbar() {
                   </button>
                 </>
               )}
-
             </div>
-
           </div>
         )}
-
       </header>
 
       {/* Login Modal Only */}
-      <LoginRoleModal
-        open={loginOpen}
-        onClose={() => setLoginOpen(false)}
-      />
+      <LoginRoleModal open={loginOpen} onClose={() => setLoginOpen(false)} />
     </>
   );
 }

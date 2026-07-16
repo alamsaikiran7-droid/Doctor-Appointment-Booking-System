@@ -7,9 +7,11 @@ import { addDoctor } from "../services/doctorService";
 function AddDoctor() {
   const navigate = useNavigate();
 
-  const [doctor, setDoctor] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
+    password: "",
+
     phone: "",
     specialization: "",
     city: "",
@@ -23,8 +25,8 @@ function AddDoctor() {
   });
 
   function handleChange(e) {
-    setDoctor({
-      ...doctor,
+    setFormData({
+      ...formData,
       [e.target.name]: e.target.value,
     });
   }
@@ -33,26 +35,28 @@ function AddDoctor() {
     e.preventDefault();
 
     const doctorData = {
-      ...doctor,
-
-      experience: Number(doctor.experience),
-      fee: Number(doctor.fee),
-
-      rating: 4.8,
-      reviews: 0,
+      ...formData,
+      experience: Number(formData.experience),
+      fee: Number(formData.fee),
     };
 
-    await addDoctor(doctorData);
+    try {
+      await addDoctor(doctorData);
 
-    alert("Doctor added successfully!");
+      alert("Doctor added successfully!");
 
-    navigate("/admin/doctors");
+      navigate("/admin/doctors");
+    } catch (error) {
+      alert(
+        error.response?.data?.detail ||
+          "Failed to create doctor."
+      );
+    }
   }
 
   return (
     <DashboardLayout role="admin">
       <div className="max-w-5xl mx-auto">
-
         <button
           onClick={() => navigate("/admin/doctors")}
           className="flex items-center gap-2 text-primary mb-6"
@@ -62,7 +66,6 @@ function AddDoctor() {
         </button>
 
         <div className="card p-8">
-
           <h1 className="text-3xl font-bold mb-2">
             Add New Doctor
           </h1>
@@ -75,54 +78,69 @@ function AddDoctor() {
             onSubmit={handleSubmit}
             className="grid md:grid-cols-2 gap-6"
           >
+            {/* Doctor Name */}
             <div>
               <label className="label">Doctor Name</label>
               <input
                 className="input"
                 name="name"
-                value={doctor.name}
+                value={formData.name}
                 onChange={handleChange}
                 required
               />
             </div>
 
+            {/* Email */}
             <div>
               <label className="label">Email</label>
               <input
                 className="input"
                 type="email"
                 name="email"
-                value={doctor.email}
+                value={formData.email}
                 onChange={handleChange}
                 required
               />
             </div>
 
+            {/* Password */}
+            <div>
+              <label className="label">Initial Password</label>
+              <input
+                className="input"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter initial password"
+                required
+              />
+            </div>
+
+            {/* Phone */}
             <div>
               <label className="label">Phone</label>
               <input
                 className="input"
                 name="phone"
-                value={doctor.phone}
+                value={formData.phone}
                 onChange={handleChange}
                 required
               />
             </div>
 
+            {/* Specialization */}
             <div>
               <label className="label">Specialization</label>
 
               <select
                 className="input"
                 name="specialization"
-                value={doctor.specialization}
+                value={formData.specialization}
                 onChange={handleChange}
                 required
               >
-                <option value="">
-                  Select Specialization
-                </option>
-
+                <option value="">Select Specialization</option>
                 <option>Cardiology</option>
                 <option>Dental Care</option>
                 <option>Pediatrics</option>
@@ -131,10 +149,9 @@ function AddDoctor() {
                 <option>Neurology</option>
                 <option>Gynecology</option>
                 <option>ENT</option>
-
               </select>
-
             </div>
+
             {/* City */}
             <div>
               <label className="label">City</label>
@@ -142,19 +159,17 @@ function AddDoctor() {
               <select
                 className="input"
                 name="city"
-                value={doctor.city}
+                value={formData.city}
                 onChange={handleChange}
                 required
               >
                 <option value="">Select City</option>
-
                 <option>Hyderabad</option>
                 <option>Chennai</option>
                 <option>Bengaluru</option>
                 <option>Delhi</option>
                 <option>Pune</option>
                 <option>Mumbai</option>
-
               </select>
             </div>
 
@@ -165,7 +180,7 @@ function AddDoctor() {
               <input
                 className="input"
                 name="clinic"
-                value={doctor.clinic}
+                value={formData.clinic}
                 onChange={handleChange}
                 required
               />
@@ -180,13 +195,13 @@ function AddDoctor() {
                 min="0"
                 className="input"
                 name="experience"
-                value={doctor.experience}
+                value={formData.experience}
                 onChange={handleChange}
                 required
               />
             </div>
 
-            {/* Consultation Fee */}
+            {/* Fee */}
             <div>
               <label className="label">Consultation Fee</label>
 
@@ -195,7 +210,7 @@ function AddDoctor() {
                 min="0"
                 className="input"
                 name="fee"
-                value={doctor.fee}
+                value={formData.fee}
                 onChange={handleChange}
                 required
               />
@@ -208,16 +223,13 @@ function AddDoctor() {
               <select
                 className="input"
                 name="gender"
-                value={doctor.gender}
+                value={formData.gender}
                 onChange={handleChange}
                 required
               >
                 <option value="">Select Gender</option>
-
-                <option value="male">Male</option>
-
-                <option value="female">Female</option>
-
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
               </select>
             </div>
 
@@ -229,7 +241,7 @@ function AddDoctor() {
                 className="input"
                 placeholder="English, Telugu"
                 name="languages"
-                value={doctor.languages}
+                value={formData.languages}
                 onChange={handleChange}
               />
             </div>
@@ -242,7 +254,7 @@ function AddDoctor() {
                 rows="4"
                 className="input resize-none"
                 name="about"
-                value={doctor.about}
+                value={formData.about}
                 onChange={handleChange}
               />
             </div>
@@ -256,14 +268,13 @@ function AddDoctor() {
                 className="input resize-none"
                 placeholder="MBBS, MD..."
                 name="education"
-                value={doctor.education}
+                value={formData.education}
                 onChange={handleChange}
               />
             </div>
 
             {/* Buttons */}
             <div className="md:col-span-2 flex justify-end gap-4 mt-4">
-
               <button
                 type="button"
                 onClick={() => navigate("/admin/doctors")}
@@ -274,19 +285,15 @@ function AddDoctor() {
 
               <button
                 type="submit"
-                className="btn-primary"
+                className="btn-primary flex items-center gap-2"
               >
                 <FiSave size={18} />
                 Save Doctor
               </button>
-
             </div>
           </form>
-
         </div>
-
       </div>
-
     </DashboardLayout>
   );
 }

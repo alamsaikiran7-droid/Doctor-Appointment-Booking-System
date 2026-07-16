@@ -129,13 +129,13 @@ def delete_doctor(
 )
 def search_doctors(
     city: Optional[str] = Query(None),
-    speciality: Optional[str] = Query(None),
+    specialization: Optional[str] = Query(None),
     db: Session = Depends(get_db)
 ):
     return doctor_service.search_doctors(
         db=db,
         city=city,
-        speciality=speciality
+        specialization=specialization
     )
 
 
@@ -174,19 +174,19 @@ def search_by_city(
 
 
 # =====================================
-# Search By Speciality
+# Search By Specialization
 # =====================================
 @router.get(
-    "/search/speciality/",
+    "/search/specialization/",
     response_model=List[DoctorResponse]
 )
-def search_by_speciality(
-    speciality: str,
+def search_by_specialization(
+    specialization: str,
     db: Session = Depends(get_db)
 ):
-    return doctor_service.search_by_speciality(
+    return doctor_service.search_by_specialization(
         db,
-        speciality
+        specialization
     )
 
 

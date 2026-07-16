@@ -1,182 +1,54 @@
-import api from "./api";
+import api from "../api/api";
 
-const SLOT_KEY = "novacare_slots";
+/* ---------- CREATE ---------- */
 
-// ===========================================
-// Local Storage Helpers
-// ===========================================
+export const createSlot = async (slot) => {
+  const { data } = await api.post("/slots/", slot);
+  return data;
+};
 
-function getLocalSlots() {
-  try {
-    return JSON.parse(localStorage.getItem(SLOT_KEY)) || [];
-  } catch {
-    return [];
-  }
-}
+/* ---------- GET ALL ---------- */
 
-function saveLocalSlots(slots) {
-  localStorage.setItem(SLOT_KEY, JSON.stringify(slots));
-}
+export const getSlots = async () => {
+  const { data } = await api.get("/slots/");
+  return data;
+};
 
-// ===========================================
-// Get Doctor Slots
-// ===========================================
+export const getAllSlots = getSlots;
 
-export async function getDoctorSlots(doctorId) {
-  let slots = [];
+/* ---------- GET ONE ---------- */
 
-  try {
-    const { data } = await api.get(`/slots/doctor/${doctorId}`);
-    slots = data;
-  } catch {
-    slots = getLocalSlots().filter(
-      (slot) => Number(slot.doctor_id) === Number(doctorId)
-    );
-  }
+export const getSlotById = async (id) => {
+  const { data } = await api.get(`/slots/${id}`);
+  return data;
+};
 
-  // If Booking.jsx calls this function,
-  // convert slots into grouped format.
-  if (slots.length > 0 && slots[0].slot_date) {
-    const grouped = {};
+/* ---------- GET DOCTOR SLOTS ---------- */
 
-    slots.forEach((slot) => {
-      const date = slot.slot_date;
+export const getDoctorSlots = async (doctorId) => {
+  const { data } = await api.get(`/slots/doctor/${doctorId}`);
+  return data;
+};
 
-      if (!grouped[date]) {
-        grouped[date] = {
-          date,
-          isoDate: date,
-          slots: [],
-        };
-      }
+export const getSlotsByDoctor = getDoctorSlots;
 
-      grouped[date].slots.push({
-        id: slot.id,
-        time: slot.slot_time,
-        status: slot.status,
-      });
-    });
+/* ---------- AVAILABLE ---------- */
 
-    return Object.values(grouped);
-  }
+export const getAvailableSlots = async (doctorId) => {
+  const { data } = await api.get(`/slots/available/${doctorId}`);
+  return data;
+};
 
-  return slots;
-}
+/* ---------- UPDATE ---------- */
 
-// ===========================================
-// Create Slot
-// ===========================================
+export const updateSlot = async (id, slot) => {
+  const { data } = await api.put(`/slots/${id}`, slot);
+  return data;
+};
 
-export async function createSlot(slot) {
-  try {
-    const { data } = await api.post("/slots", slot);
-    return data;
-  } catch {
-    const slots = getLocalSlots();
+/* ---------- DELETE ---------- */
 
-    const newSlot = {
-      id: Date.now(),
-      doctor_id: Number(slot.doctor_id),
-      slot_date: slot.slot_date,
-      slot_time: slot.slot_time,
-      duration_minutes: slot.duration_minutes || 30,
-      status: "AVAILABLE",
-    };
-
-    slots.push(newSlot);
-    saveLocalSlots(slots);
-
-    return newSlot;
-  }
-}
-
-// ===========================================
-// Update Slot
-// ===========================================
-
-export async function updateSlot(id, updatedData) {
-  try {
-    const { data } = await api.put(`/slots/${id}`, updatedData);
-    return data;
-  } catch {
-    const slots = getLocalSlots();
-
-    const updatedSlots = slots.map((slot) =>
-      slot.id === id
-        ? {
-            ...slot,
-            ...updatedData,
-          }
-        : slot
-    );
-
-    saveLocalSlots(updatedSlots);
-
-    return updatedSlots.find((slot) => slot.id === id);
-  }
-}
-
-// ===========================================
-// Delete Slot
-// ===========================================
-
-export async function deleteSlot(id) {
-  try {
-    await api.delete(`/slots/${id}`);
-    return true;
-  } catch {
-    const slots = getLocalSlots().filter(
-      (slot) => slot.id !== id
-    );
-
-    saveLocalSlots(slots);
-
-    return true;
-  }
-}
-
-// ===========================================
-// Book Slot
-// ===========================================
-
-export async function bookSlot(id) {
-  try {
-    const { data } = await api.put(`/slots/${id}/book`);
-    return data;
-  } catch {
-    const slots = getLocalSlots();
-
-    const slot = slots.find((s) => s.id === id);
-
-    if (!slot) return null;
-
-    slot.status = "BOOKED";
-
-    saveLocalSlots(slots);
-
-    return slot;
-  }
-}
-
-// ===========================================
-// Release Slot
-// ===========================================
-
-export async function releaseSlot(id) {
-  try {
-    const { data } = await api.put(`/slots/${id}/release`);
-    return data;
-  } catch {
-    const slots = getLocalSlots();
-
-    const slot = slots.find((s) => s.id === id);
-
-    if (!slot) return null;
-
-    slot.status = "AVAILABLE";
-
-    saveLocalSlots(slots);
-
-    return slot;
-  }
-}
+export const deleteSlot = async (id) => {
+  const { data } = await api.delete(`/slots/${id}`);
+  return data;
+};

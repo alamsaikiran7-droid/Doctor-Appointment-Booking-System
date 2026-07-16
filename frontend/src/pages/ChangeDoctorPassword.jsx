@@ -14,7 +14,7 @@ function ChangeDoctorPassword() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     setError("");
@@ -36,7 +36,7 @@ function ChangeDoctorPassword() {
     }
 
     try {
-      changeDoctorPassword(currentPassword, newPassword);
+      await changeDoctorPassword(currentPassword, newPassword);
 
       setSuccess("Password changed successfully!");
 

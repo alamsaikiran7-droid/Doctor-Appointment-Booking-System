@@ -10,7 +10,7 @@ const menus = {
     { label: "Dashboard", to: "/patient/dashboard", icon: FiHome },
     { label: "Book Appointment", to: "/doctors", icon: FiCalendar },
     { label: "My Appointments", to: "/my-appointments", icon: FiClock },
-    { label: "Profile", to: "/patient/dashboard", icon: FiUser },
+    { label: "Profile", to: "/patient/profile", icon: FiUser },
   ],
   doctor: [
     { label: "Dashboard", to: "/doctor/dashboard", icon: FiHome },

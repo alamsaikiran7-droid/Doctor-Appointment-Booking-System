@@ -1,311 +1,92 @@
-import api from "./api";
-import { doctors } from "../data/doctors";
-const DOCTOR_KEY = "novacare_doctors";
+import api from "../api/api";
+import { adaptDoctor, adaptDoctorsList } from "./adapters";
 
-// Initialize doctors in localStorage only once
-function initializeDoctors() {
-  if (!localStorage.getItem(DOCTOR_KEY)) {
-    localStorage.setItem(
-      DOCTOR_KEY,
-      JSON.stringify(doctors)
-    );
+/* ---------- GET ALL DOCTORS ---------- */
+
+export const getDoctors = async () => {
+  const { data } = await api.get("/doctors/");
+  return adaptDoctorsList(data);
+};
+
+// Alias
+export const getAllDoctors = getDoctors;
+
+/* ---------- GET DOCTOR ---------- */
+
+export const getDoctorById = async (id) => {
+  const { data } = await api.get(`/doctors/${id}`);
+  return adaptDoctor(data);
+};
+
+/* ---------- CREATE ---------- */
+
+export const createDoctor = async (doctor) => {
+  const { data } = await api.post("/doctors/", doctor);
+  return adaptDoctor(data);
+};
+
+export const addDoctor = createDoctor;
+
+
+/* ---------- UPDATE ---------- */
+
+export const updateDoctor = async (id, doctor) => {
+  const { data } = await api.put(`/doctors/${id}`, doctor);
+  return adaptDoctor(data);
+};
+
+export const updateDoctorProfile = async (doctor) => {
+  if (!doctor?.id) {
+    throw new Error("Doctor id is required to update profile.");
   }
-}
+  return updateDoctor(doctor.id, doctor);
+};
 
-function getLocalDoctors() {
-  initializeDoctors();
-  return JSON.parse(localStorage.getItem(DOCTOR_KEY));
-}
+/* ---------- DELETE ---------- */
 
-function saveLocalDoctors(list) {
-  localStorage.setItem(
-    DOCTOR_KEY,
-    JSON.stringify(list)
-  );
-}
+export const deleteDoctor = async (id) => {
+  const { data } = await api.delete(`/doctors/${id}`);
+  return data;
+};
 
-/*
-=========================================
-Normalize Doctor Object
-=========================================
-*/
-function normalizeDoctor(doctor) {
-  return {
-    ...doctor,
+/* ---------- SEARCH ---------- */
 
-    // Backend sends "speciality"
-    // Frontend uses "specialization"
-    specialization:
-      doctor.specialization ||
-      doctor.speciality ||
-      "",
+export const searchDoctors = async (city, speciality) => {
+  const { data } = await api.get("/doctors/search/", {
+    params: { city, speciality },
+  });
 
-    speciality:
-      doctor.speciality ||
-      doctor.specialization ||
-      "",
+  return adaptDoctorsList(data);
+};
 
-    // Backend sends consultation_fee
-    fee:
-      doctor.fee ||
-      doctor.consultation_fee ||
-      0,
+export const searchDoctorByName = async (name) => {
+  const { data } = await api.get("/doctors/search/name/", {
+    params: { name },
+  });
 
-    consultation_fee:
-      doctor.consultation_fee ||
-      doctor.fee ||
-      0,
-  };
-}
+  return adaptDoctorsList(data);
+};
 
-/*
-=========================================
-Get All Doctors
-=========================================
-*/
-export async function getDoctors() {
-  try {
-    const { data } = await api.get("/doctors");
+export const searchDoctorByCity = async (city) => {
+  const { data } = await api.get("/doctors/search/city/", {
+    params: { city },
+  });
 
-    return data.map(normalizeDoctor);
+  return adaptDoctorsList(data);
+};
 
-  } catch (err) {
+export const searchDoctorBySpeciality = async (speciality) => {
+  const { data } = await api.get("/doctors/search/speciality/", {
+    params: { speciality },
+  });
 
-    console.log("Using localStorage doctors");
+  return adaptDoctorsList(data);
+};
 
-    return getLocalDoctors().map(normalizeDoctor);
+export const globalSearchDoctors = async (keyword) => {
+  const { data } = await api.get("/doctors/search/global/", {
+    params: { keyword },
+  });
 
-    
-  }
-}
-
-/*
-=========================================
-Get Doctor By Id
-=========================================
-*/
-export async function getDoctorById(id) {
-
-  try {
-
-    const { data } = await api.get(
-      `/doctors/${id}`
-    );
-
-    return normalizeDoctor(data);
-
-  } catch (err) {
-
-    const doctor = getLocalDoctors().find(
-      (d) => Number(d.id) === Number(id)
-    );
-
-    if (!doctor) return null;
-
-    return normalizeDoctor(doctor);
-  }
-}
-
-/*
-=========================================
-Search Doctors
-=========================================
-*/
-export async function searchDoctors(
-  city = "",
-  speciality = ""
-) {
-
-  try {
-
-    const { data } = await api.get(
-      "/doctors/search",
-      {
-        params: {
-          city,
-          speciality,
-        },
-      }
-    );
-
-    return data.map(normalizeDoctor);
-
-  } catch (err) {
-
-    return getLocalDoctors()
-      .filter((doctor) => {
-
-        const cityMatch =
-          city === ""
-            ? true
-            : doctor.city
-                .toLowerCase()
-                .includes(city.toLowerCase());
-
-        const specialityMatch =
-          speciality === ""
-            ? true
-            : (
-                doctor.specialization ||
-                doctor.speciality
-              )
-                .toLowerCase()
-                .includes(
-                  speciality.toLowerCase()
-                );
-
-        return cityMatch && specialityMatch;
-      })
-      .map(normalizeDoctor);
-  }
-}
-
-/*
-=========================================
-Search By Name
-=========================================
-*/
-export async function searchDoctorByName(
-  keyword
-) {
-
-  const list = await getDoctors();
-
-  return list.filter((doctor) =>
-    doctor.name
-      .toLowerCase()
-      .includes(keyword.toLowerCase())
-  );
-}
-
-/*
-=========================================
-Get Doctor Statistics
-=========================================
-*/
-export async function getDoctorStatistics() {
-
-  const list = await getDoctors();
-
-  return {
-
-    totalDoctors: list.length,
-
-    cardiologists: list.filter(
-      (d) =>
-        d.specialization ===
-        "Cardiology"
-    ).length,
-
-    neurologists: list.filter(
-      (d) =>
-        d.specialization ===
-        "Neurology"
-    ).length,
-
-    orthopedics: list.filter(
-      (d) =>
-        d.specialization ===
-        "Orthopedics"
-    ).length,
-
-    averageFee:
-      list.length === 0
-        ? 0
-        : Math.round(
-            list.reduce(
-              (sum, doctor) =>
-                sum + Number(doctor.fee),
-              0
-            ) / list.length
-          ),
-  };
-}
-
-/*
-=========================================
-Add Doctor
-=========================================
-*/
-export function addDoctor(doctor) {
-
-  const list = getLocalDoctors();
-
-  const newDoctor = {
-    ...doctor,
-
-    id: Date.now(),
-
-    rating: 4.8,
-
-    reviews: 0,
-
-    languages: doctor.languages
-      ? doctor.languages
-          .split(",")
-          .map((l) => l.trim())
-      : [],
-
-    education: doctor.education
-      ? doctor.education
-          .split(",")
-          .map((e) => e.trim())
-      : [],
-
-    experience: Number(doctor.experience),
-
-    fee: Number(doctor.fee),
-  };
-
-  list.push(newDoctor);
-
-  saveLocalDoctors(list);
-
-  return newDoctor;
-}
-
-/*
-=========================================
-Update Doctor
-=========================================
-*/
-export function updateDoctor(updatedDoctor) {
-
-  const list = getLocalDoctors();
-
-  const updated = list.map((doctor) =>
-    doctor.id === updatedDoctor.id
-      ? updatedDoctor
-      : doctor
-  );
-
-  saveLocalDoctors(updated);
-}
-
-/*
-=========================================
-Delete Doctor
-=========================================
-*/
-export function deleteDoctor(id) {
-
-  const updated = getLocalDoctors().filter(
-    (doctor) => Number(doctor.id) !== Number(id)
-  );
-
-  saveLocalDoctors(updated);
-
-  return updated;
-}
-
-export function updateDoctorProfile(updatedDoctor) {
-  const doctors = getLocalDoctors();
-
-  const updated = doctors.map((doctor) =>
-    Number(doctor.id) === Number(updatedDoctor.id)
-      ? updatedDoctor
-      : doctor
-  );
-
-  saveLocalDoctors(updated);
-}
+  return adaptDoctorsList(data);
+};

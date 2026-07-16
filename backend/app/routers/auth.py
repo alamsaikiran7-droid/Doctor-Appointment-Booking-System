@@ -11,6 +11,7 @@ from app.schemas.auth_schema import (
     UserResponse,
 )
 from app.services import auth_service
+from app.dependencies import get_current_admin, get_current_user
 
 
 router = APIRouter(
@@ -87,3 +88,27 @@ def get_profile(
     """
 
     return current_user
+# ==========================================
+# Get All Registered Patients
+# ==========================================
+@router.get(
+    "/patients",
+    response_model=list[UserResponse],
+)
+def get_all_patients(
+    db: Session = Depends(get_db),
+    current_admin: User = Depends(get_current_admin),
+):
+    """
+    Return all registered users whose role is patient.
+    Admin access only.
+    """
+
+    patients = (
+        db.query(User)
+        .filter(User.role == "patient")
+        .order_by(User.created_at.desc())
+        .all()
+    )
+
+    return patients
